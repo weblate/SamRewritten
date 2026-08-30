@@ -14,9 +14,11 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod app;
+pub mod app_info;
 pub mod app_lister;
 pub mod app_manager;
 pub mod connected_steam;
+pub mod friend_library;
 pub mod key_value;
 pub mod local_config;
 pub mod local_stats;
@@ -25,6 +27,7 @@ pub mod orchestrator_client;
 pub mod progress_io;
 pub mod stat_definitions;
 pub mod stats_access;
+pub mod steam_collections;
 mod tests;
 pub mod types;
 pub mod user_unlock_times;

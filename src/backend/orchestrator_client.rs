@@ -21,6 +21,7 @@
 
 use crate::backend::app_lister::AppModel;
 use crate::backend::stat_definitions::{AchievementInfo, StatInfo};
+use crate::backend::steam_collections::CollectionModel;
 use crate::backend::user_unlock_times::{AchievementUnlock, AvatarImage, Friend};
 use crate::dev_println;
 #[cfg(feature = "gui")]
@@ -211,6 +212,9 @@ request!(GetFriendAchievementCount { app_id: u32, steam_id64: u64 } -> (u32, u32
     => SteamCommand::GetFriendAchievementCount(app_id, steam_id64));
 
 request!(GetFriends -> Vec<Friend> => SteamCommand::GetFriends);
+
+request!(GetCollections { library: Vec<u32> } -> Vec<CollectionModel>
+    => SteamCommand::GetCollections(library));
 
 request!(GetCurrentUser -> u64 => SteamCommand::GetCurrentUser);
 

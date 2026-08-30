@@ -26,7 +26,28 @@ mod tests {
     static STEAM: Mutex<()> = Mutex::new(());
 
     fn steam_guard() -> MutexGuard<'static, ()> {
-        STEAM.lock().unwrap_or_else(|e| e.into_inner())
+        let guard = STEAM.lock().unwrap_or_else(|e| e.into_inner());
+        // A machine can hold several installs and the locator picks by preference,
+        // not by what is live; only one running install is unambiguous.
+        #[cfg(target_os = "linux")]
+        if let [root] = crate::utils::steam_ns::running_steam_install_roots().as_slice() {
+            let _ = crate::utils::steam_locator::TEST_INSTALL_ROOT.set(root.clone());
+        }
+        // Same refusal the orchestrator makes: connecting to another live Steam
+        // half-succeeds, and every call after that is refused for no stated reason.
+        #[cfg(target_os = "linux")]
+        assert!(
+            crate::utils::steam_ns::loaded_install_is_running(),
+            "Steam is not running from {}, the install these tests load. Start \
+             that Steam, or set SAM_STEAM_INSTALL_ROOT to the one that is running.",
+            crate::utils::steam_locator::SteamLocator::get_local_steam_install_root_folders()
+                .first()
+                .map_or_else(
+                    || "any known install".to_owned(),
+                    |p| p.display().to_string()
+                )
+        );
+        guard
     }
 
     #[test]

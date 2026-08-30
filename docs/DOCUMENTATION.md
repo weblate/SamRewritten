@@ -2,7 +2,23 @@
 
 ## Process model
 
-![Architectural software schema](samdoc.drawio.png)
+```mermaid
+flowchart TB
+    UI["<b>Front-end</b><br>GUI (GTK4) or CLI<br><i>the process the user launches</i>"]
+    ORCH["<b>Orchestrator</b><br>samrewritten --orchestrator<br><i>exactly one per front-end</i>"]
+    A1["<b>App server</b><br>--app=480"]
+    A2["<b>App server</b><br>--app=220"]
+    A3["<i>… up to 30 at once</i>"]
+    STEAM[["<b>Steam client</b><br>steamclient.so"]]
+
+    UI <-->|"length-prefixed JSON<br>over a pair of unnamed pipes"| ORCH
+    ORCH <-->|"one pipe pair per child"| A1
+    ORCH <--> A2
+    ORCH -.-> A3
+    ORCH <-->|"calls needing no app id:<br>owned apps, achievement counts,<br>collections, identity"| STEAM
+    A1 <-->|"SteamAPI_Init for 480 —<br>this is what holds the in-game presence"| STEAM
+    A2 <--> STEAM
+```
 
 Three kinds of process. They are all the same binary (`samrewritten`); the
 role is selected by command-line flags routed in `src/main.rs`.
@@ -41,6 +57,164 @@ the "I'm running game X" presence holder.
   holds the single orchestrator `IpcClient`; `Request::request()` takes the
   lock to serialize traffic on that pipe. (`gui_frontend::request` is a thin
   re-export kept for the GUI's existing imports.)
+
+## Loading order in the GUI
+
+Nothing in the front-end blocks on Steam. Every front-end to orchestrator call
+runs on a `spawn_blocking` worker with a `MainContext::spawn_local`
+continuation, so the window stays interactive from the moment it appears; the
+one deliberate exception is marked below.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant G as GUI main thread
+    participant O as Orchestrator
+    participant S as Steam client
+    participant D as Steam files on disk
+
+    U->>G: launch
+    G->>G: i18n, GSettings, build every widget
+    G->>D: enumerate Steam installs
+    opt several installs found
+        G-->>U: install chooser
+    end
+    G->>O: spawn --orchestrator
+    O->>O: join Flatpak Steam PID namespace, Linux only
+    G->>O: SetStealthMode — the one blocking call
+    G-->>U: window.present — the list area is a spinner,<br>the sidebar is not up yet
+
+    par library
+        G->>O: GetSubscribedAppList
+        O->>S: connect — first Steam call of the session
+        O->>D: apps.xml, re-downloaded only if over 7 days old
+        O->>S: get_subscribed_apps
+        O->>D: localconfig.vdf — playtime and last played
+        O-->>G: the owned-app list
+        G->>G: fill the list store, swap the stack to the list page
+        G-->>U: spinner gone — grid and sidebar filters appear together
+    and identity
+        G->>O: GetCurrentUser
+        O-->>G: steam id
+        G->>O: GetUserPersonaName
+        O-->>G: name, into the sidebar
+        G->>O: GetUserAvatar
+        O-->>G: avatar, into the sidebar
+    end
+
+    Note over G,U: Everything below lands in an already-visible window:<br>badges, the collection dropdown and idle state fill in<br>under the user, who can already scroll, search and filter.
+
+    Note over G: The count prefill needs both the library and the<br>steam id, so whichever of the two lands second starts it.
+    G->>D: LocalIndex::read_all — achievement counts from Steam's own files
+    D-->>G: counts for most of the library at once
+
+    G->>O: GetCollections, with the library it just loaded
+    O->>D: cloud-storage-namespace-1.json, about 0.2 ms
+    opt a dynamic collection needs app metadata
+        O->>D: appinfo.vdf and libraryfolders.vdf, about 25 ms
+    end
+    O-->>G: resolved collections
+    G-->>U: the sidebar collection dropdown fills in
+
+    G->>O: GetRunningApps
+    O-->>G: which apps are already idling
+
+    loop each card scrolled into view
+        G->>D: banner, from the local index then the disk cache
+        G->>O: GetAchievementCounts, 8 apps per chunk
+        Note over G,O: only for apps the local files could not settle
+    end
+
+    U->>G: opens the profile page
+    G->>D: read_all_unlock_stamps — every stats file for the account
+    D-->>G: heatmap and completion curve
+
+    U->>G: opens a game
+    G->>O: GetAchievementsAndStats, launch = true
+    O->>O: spawn samrewritten --app=440
+    O->>S: SteamAPI_Init for 440
+    O-->>G: achievements, stats and schema languages
+```
+
+### Before the window exists
+
+`create_main_ui` runs to completion first: translations, GSettings, and the
+**whole** widget tree — app list, manage view, sidebar and profile page are all
+built up front, then swapped by `GtkStack` rather than constructed on demand.
+No Steam call has happened at this point and nothing has been read from disk
+except the compiled schema and the install enumeration. If more than one Steam
+install is present, the chooser dialog blocks here, before the main window.
+
+### At `window.present()`
+
+The orchestrator child already exists, has joined the Flatpak PID namespace if
+needed, and has answered one **synchronous** `SetStealthMode` on the main
+thread. The window then opens on a spinner and the library request is already
+in flight. The sidebar is not visible yet: it lives *inside* the stack's list
+page rather than beside the stack, so the filters arrive with the grid, not
+before it.
+
+### Two independent branches
+
+The library (`GetSubscribedAppList`) and the identity (`GetCurrentUser`, then
+name, then avatar) are unrelated requests racing each other. The identity chain
+is sequential because each step needs the steam id from the first.
+
+`GetSubscribedAppList` is the first thing to actually touch Steam, so the
+orchestrator's own connection is established there — not at spawn. It is also
+the only startup step that makes an HTTP request of its own, and only when the
+cached `apps.xml` is more than seven days old; banner downloads come later, one
+card at a time.
+
+### When the spinner goes away
+
+The instant `GetSubscribedAppList` returns. The handler fills the list store and
+switches `list_stack` to its list page in the same tick, which reveals the grid
+and the sidebar together, and re-enables the search entry that was greyed for
+the duration.
+
+That switch happens **before** `on_library_loaded()`, so the count prefill and
+the collections fetch have not even started when the user first sees the list.
+What is on screen at that moment is app names, local banners and playtime;
+achievement badges fade in as counts settle, and the collection dropdown holds
+nothing but "All games" until `GetCollections` answers.
+
+An empty library, and a library download that failed outright, both still reach
+the list page — with an explanatory label where the grid would be, so the
+sidebar and the search box stay usable. Any other error is the one case that
+never gets there: the stack switches to a separate "disconnected" page instead.
+
+### The rendezvous
+
+`prefill_counts` needs the steam id *and* a non-empty list, so it is called from
+both branches and does nothing until the second one arrives. It then reads
+achievement counts straight out of Steam's own files for the whole library in
+one worker pass — this is why most cards show their count without a single IPC
+round trip.
+
+### After the library lands
+
+`on_library_loaded` fires the collection fetch and the idle-state sync. The
+collections file is re-read on every refresh rather than cached: it is a few KB,
+and Steam rewrites it within a second of any change. `appinfo.vdf` is only
+touched when a dynamic collection actually needs it, and then only for the app
+ids the caller owns.
+
+### Lazily, while you scroll
+
+Banners resolve local-first (an on-disk index, rebuilt on each refresh), then a
+temp-dir cache, then the CDN. Achievement counts for whatever the local files
+could not settle are fetched in chunks of 8, prioritised by what is on screen —
+a card binding jumps its own app to the front of the queue. A filter or sort
+that needs counts escalates this to a full sweep of the library.
+
+### On demand
+
+The profile page reads every unlock timestamp for the account when opened, and
+throttles re-reads afterwards (1 s for the tiles, 5 s for the history). Opening
+a game spawns a long-lived app server, which is what makes Steam show you as
+in-game; idling does the same, and bulk operations spawn short-lived ones.
 
 ## Bulk operations
 
@@ -209,6 +383,12 @@ the compiled schema into `$SNAP/usr/share/glib-2.0/schemas/` via the
   * `stat_definitions.rs` — `AchievementInfo`, `StatInfo` (Int/Float),
     permission bit semantics.
   * `local_config.rs` — `localconfig.vdf` parser (playtime, last-played).
+  * `steam_collections.rs` — Steam library collections: parses the client's
+    on-disk mirror, reproduces Valve's own filter evaluation for dynamic ones,
+    and refuses (rather than guesses) any filter it cannot answer faithfully.
+  * `app_info.rs` — targeted `appinfo.vdf` reader, used only by the above:
+    skips app bodies by their length and decodes just the `common` fields the
+    collection filters need.
   * `local_stats.rs`, `key_value.rs` — on-disk fast path for achievement
     counts, over the Steam binary KeyValue parser.
   * `user_unlock_times/` — bulk parse of on-disk unlock timestamps, and the

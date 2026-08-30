@@ -28,10 +28,7 @@ pub struct IClientUser {
 #[repr(C)]
 pub struct IClientUserVTable {
     pub _vt_pre_get_subscribed_apps: [*const c_void; 182],
-    /// `GetSubscribedApps(AppId_t *pAppIDs, uint32 cMaxAppIDs, bool bFiltered)
-    /// -> uint32`. Pass `(NULL, 0, false)` for the count; then a sized buffer
-    /// for the IDs. Returns sorted ascending. `bFiltered` toggles shared/
-    /// family-library inclusion (no observable difference on accounts without
-    /// family-shared apps).
+    /// The bool adds expired and just-granted licences: `true` answers a
+    /// superset, it is not an ownership filter.
     pub get_subscribed_apps: unsafe extern "C" fn(*mut IClientUser, *mut AppId_t, u32, bool) -> u32,
 }

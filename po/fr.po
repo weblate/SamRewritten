@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SamRewritten\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-30 23:21+0200\n"
+"POT-Creation-Date: 2026-09-02 19:42+0200\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: src/gui_frontend/ui_components.rs:159 src/gui_frontend/app_view.rs:62
-#: src/gui_frontend/app_list_view/mod.rs:380
+#: src/gui_frontend/app_list_view/mod.rs:425
 msgid "Loading..."
 msgstr "Chargement..."
 
@@ -440,111 +440,147 @@ msgstr "Rechercher des amis ou coller un SteamID64"
 msgid "Clear selected user"
 msgstr "Effacer l'utilisateur sélectionné"
 
-#: src/gui_frontend/app_list_view/mod.rs:401
+#: src/gui_frontend/app_list_view/mod.rs:446
 msgid "SamRewritten could not connect to Steam. Is it running?"
 msgstr "SamRewritten n'a pas pu se connecter à Steam. Est-il bien lancé ?"
 
-#: src/gui_frontend/app_list_view/mod.rs:406
+#: src/gui_frontend/app_list_view/mod.rs:451
 msgid "Try again"
 msgstr "Réessayer"
 
-#: src/gui_frontend/app_list_view/mod.rs:423
-#: src/gui_frontend/app_list_view/mod.rs:1605
+#: src/gui_frontend/app_list_view/mod.rs:468
+#: src/gui_frontend/app_list_view/mod.rs:1740
 msgid "Name or AppId (Ctrl+K)"
 msgstr "Nom ou AppId (Ctrl+K)"
 
-#: src/gui_frontend/app_list_view/mod.rs:439
+#: src/gui_frontend/app_list_view/mod.rs:484
 msgid "Show or hide the sidebar"
 msgstr "Afficher ou masquer la barre latérale"
 
-#: src/gui_frontend/app_list_view/mod.rs:1600
+#: src/gui_frontend/app_list_view/mod.rs:1735
 msgid "Achievement or stat..."
 msgstr "Succès ou statistique..."
 
-#: src/gui_frontend/app_list_view/mod.rs:1719
-#: src/gui_frontend/app_list_view/settings_bindings.rs:265
+#: src/gui_frontend/app_list_view/mod.rs:1854
+#: src/gui_frontend/app_list_view/settings_bindings.rs:285
 msgid "Could not change the in-game setting"
 msgstr "Impossible de changer l'option in-game"
 
-#: src/gui_frontend/app_list_view/mod.rs:1721
-#: src/gui_frontend/app_list_view/settings_bindings.rs:266
+#: src/gui_frontend/app_list_view/mod.rs:1856
+#: src/gui_frontend/app_list_view/settings_bindings.rs:286
 msgid "The change could not be applied. Restart SamRewritten and try again."
-msgstr "Le changement n'a pas pu être appliqué. Redémarrez SamRewritten et réessayez."
+msgstr ""
+"Le changement n'a pas pu être appliqué. Redémarrez SamRewritten et réessayez."
 
-#: src/gui_frontend/app_list_view/sidebar.rs:47
+#: src/gui_frontend/app_list_view/sidebar.rs:54
 msgid "Hide with no achievements"
 msgstr "Masquer sans succès"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:52
+#: src/gui_frontend/app_list_view/sidebar.rs:59
 msgid "Hide at 100%"
 msgstr "Masquer à 100 %"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:57
+#: src/gui_frontend/app_list_view/sidebar.rs:64
 msgid "Hide at 0%"
 msgstr "Masquer à 0 %"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:62
+#: src/gui_frontend/app_list_view/sidebar.rs:69
 msgid "Hide never launched"
 msgstr "Masquer jamais lancés"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:67
+#: src/gui_frontend/app_list_view/sidebar.rs:74
 msgid "Only currently idling"
 msgstr "Uniquement in-game"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:72
+#: src/gui_frontend/app_list_view/sidebar.rs:79
+msgid "Hide hidden in Steam"
+msgstr "Masquer les masqués Steam"
+
+#: src/gui_frontend/app_list_view/sidebar.rs:84
 msgid "Show junk"
 msgstr "Afficher superflus"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:86
+#: src/gui_frontend/app_list_view/sidebar.rs:98
 msgid "App ID"
 msgstr "App ID"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:91
+#: src/gui_frontend/app_list_view/sidebar.rs:103
 msgid "Name"
 msgstr "Nom"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:96
+#: src/gui_frontend/app_list_view/sidebar.rs:108
 msgid "Last played"
 msgstr "Lancé récemment"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:101
+#: src/gui_frontend/app_list_view/sidebar.rs:113
 msgid "Playtime"
 msgstr "Temps de jeu"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:106
+#: src/gui_frontend/app_list_view/sidebar.rs:118
 msgid "Completion"
 msgstr "Complétion"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:111
+#: src/gui_frontend/app_list_view/sidebar.rs:123
 msgid "Achievements left"
 msgstr "Succès restants"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:153
+#: src/gui_frontend/app_list_view/sidebar.rs:156
+msgid "Filters on a search term, which SamRewritten cannot reproduce exactly."
+msgstr ""
+"Filtre selon un terme de recherche, ce que SamRewritten ne peut pas "
+"reproduire exactement."
+
+#: src/gui_frontend/app_list_view/sidebar.rs:159
+msgid "Uses a Steam filter SamRewritten cannot reproduce exactly."
+msgstr ""
+"Utilise un filtre Steam que SamRewritten ne peut pas reproduire exactement."
+
+#: src/gui_frontend/app_list_view/sidebar.rs:162
+msgid ""
+"Needs information from Steam that could not be read. Refresh to try again."
+msgstr ""
+"Nécessite des informations de Steam qui n'ont pas pu être lues. Actualisez "
+"pour réessayer."
+
+#: src/gui_frontend/app_list_view/sidebar.rs:171
+msgid "Favorites"
+msgstr "Favoris"
+
+#: src/gui_frontend/app_list_view/sidebar.rs:198
 msgid "View profile"
 msgstr "Voir le profil"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:208
+#: src/gui_frontend/app_list_view/sidebar.rs:253
 #: src/gui_frontend/profile_view/mod.rs:484
 msgid "Steam user"
 msgstr "Utilisateur Steam"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:229
+#: src/gui_frontend/app_list_view/sidebar.rs:274
 msgid "Fetching completion…"
 msgstr "Chargement de la complétion…"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:235
+#: src/gui_frontend/app_list_view/sidebar.rs:280
 msgid "Click to cancel"
 msgstr "Cliquez pour annuler"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:266
+#: src/gui_frontend/app_list_view/sidebar.rs:311
 msgid "Filters"
 msgstr "Filtres"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:274
+#: src/gui_frontend/app_list_view/sidebar.rs:318
+msgid "Steam collection"
+msgstr "Collection Steam"
+
+#: src/gui_frontend/app_list_view/sidebar.rs:319
+#: src/gui_frontend/app_list_view/sidebar.rs:509
+msgid "All games"
+msgstr "Tous les jeux"
+
+#: src/gui_frontend/app_list_view/sidebar.rs:395
 msgid "Sort by"
 msgstr "Trier par"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:313
+#: src/gui_frontend/app_list_view/sidebar.rs:434
 msgid "Reset filters"
 msgstr "Réinitialiser les filtres"
 
@@ -986,12 +1022,12 @@ msgstr "Une erreur inattendue s'est produite pendant le retour en arrière :"
 msgid "Undo incomplete"
 msgstr "Retour en arrière incomplet"
 
-#: src/gui_frontend/app_list_view/settings_bindings.rs:138
+#: src/gui_frontend/app_list_view/settings_bindings.rs:158
 msgid "The new language will be applied the next time you start SamRewritten."
 msgstr ""
 "La nouvelle langue sera appliquée au prochain démarrage de SamRewritten."
 
-#: src/gui_frontend/app_list_view/settings_bindings.rs:148
+#: src/gui_frontend/app_list_view/settings_bindings.rs:168
 msgid "Language changed"
 msgstr "Langue modifiée"
 

@@ -144,5 +144,17 @@
             <summary>Keep A History Of Changes</summary>
             <description>Whether every change SamRewritten makes is recorded to a local history file, so it can be reviewed and undone. Turning this off stops recording; anything already recorded is kept.</description>
         </key>
+
+        <key name="filter-collection" type="s">
+            <default>''</default>
+            <summary>Steam Collection To Show</summary>
+            <description>Id of the Steam library collection the games list is limited to, as Steam stores it: 'favorite' for your favourites, 'from-tag-' followed by a tag name for one Steam made from a tag, or 'uc-' followed by random characters for one you created. An empty string shows every game.</description>
+        </key>
+
+        <key name="filter-hide-steam-hidden" type="b">
+            <default>false</default>
+            <summary>Hide Games Hidden In Steam</summary>
+            <description>Whether games you placed in Steam's own Hidden collection are left out of the games list.</description>
+        </key>
     </schema>
 </schemalist>

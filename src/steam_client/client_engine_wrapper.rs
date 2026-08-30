@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::steam_client::client_engine_vtable::IClientEngine;
+use crate::steam_client::client_unified_messages_vtable::IClientUnifiedMessages;
+use crate::steam_client::client_unified_messages_wrapper::ClientUnifiedMessages;
 use crate::steam_client::client_user_stats_map_vtable::IClientUserStatsMap;
 use crate::steam_client::client_user_stats_map_wrapper::ClientUserStatsMap;
 use crate::steam_client::client_user_vtable::IClientUser;
@@ -96,6 +98,37 @@ impl ClientEngine {
         unsafe {
             let vt = (*self.inner.ptr).vtable.as_ref().expect("vtable null");
             (vt.release_user)(self.inner.ptr, pipe, user);
+        }
+    }
+
+    pub fn get_iclient_unified_messages(
+        &self,
+        user: HSteamUser,
+        pipe: HSteamPipe,
+    ) -> Result<ClientUnifiedMessages, SteamClientError> {
+        unsafe {
+            let vt = (*self.inner.ptr)
+                .vtable
+                .as_ref()
+                .ok_or(SteamClientError::NullVtable)?;
+            let ptr: *mut IClientUnifiedMessages =
+                (vt.get_iclient_unified_messages)(self.inner.ptr, user, pipe);
+            // The slot index is read off one Steam build; a stub records its
+            // handles right after the vtable, so check we got the one we asked for.
+            let stamped = (!ptr.is_null()).then(|| {
+                let handles = ptr
+                    .cast::<u8>()
+                    .add(size_of::<usize>())
+                    .cast::<HSteamUser>();
+                (handles.read_unaligned(), handles.add(1).read_unaligned())
+            });
+            if stamped != Some((user, pipe)) {
+                Err(SteamClientError::InterfaceCreationFailed(
+                    "IClientUnifiedMessages".to_owned(),
+                ))
+            } else {
+                Ok(ClientUnifiedMessages::from_raw(ptr, self.inner.clone()))
+            }
         }
     }
 

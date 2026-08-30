@@ -23,6 +23,7 @@ mod sidebar;
 
 use crate::backend::app_lister::{AppModel, AppModelType};
 use crate::backend::local_stats::LocalIndex;
+use crate::backend::steam_collections::{CollectionModel, HIDDEN_ID};
 use crate::backend::user_unlock_times::account_id;
 use crate::gui_frontend::MainApplication;
 use crate::gui_frontend::app_list_view_callbacks::switch_from_app_list_to_app;
@@ -37,7 +38,7 @@ use crate::gui_frontend::i18n::tr;
 use crate::gui_frontend::profile_view::build_profile_view;
 use crate::gui_frontend::profile_view::identity::{Identity, SharedIdentity, load_identity};
 use crate::gui_frontend::request::{
-    AppProgress, GetRunningApps, LaunchApp, Request, SetStealthMode, StopApp,
+    AppProgress, GetCollections, GetRunningApps, LaunchApp, Request, SetStealthMode, StopApp,
 };
 use crate::gui_frontend::ui_components::{
     create_context_menu_button, set_context_popover_to_app_list_context,
@@ -81,6 +82,48 @@ pub(super) struct FilterState {
     pub hide_never_launched: Cell<bool>,
     pub hide_no_unlocked: Cell<bool>,
     pub hide_without_achievements: Cell<bool>,
+    pub hide_steam_hidden: Cell<bool>,
+}
+
+#[derive(Default)]
+pub(super) struct Collections {
+    models: RefCell<Vec<CollectionModel>>,
+    selected: RefCell<Option<HashSet<u32>>>,
+    hidden: RefCell<HashSet<u32>>,
+}
+
+impl Collections {
+    fn app_ids_of(models: &[CollectionModel], id: &str) -> Option<HashSet<u32>> {
+        models
+            .iter()
+            .find(|model| model.id == id && model.id != HIDDEN_ID && model.unsupported.is_none())
+            .map(|model| model.app_ids.iter().copied().collect())
+    }
+
+    fn store(&self, models: Vec<CollectionModel>, selected_id: &str) {
+        *self.hidden.borrow_mut() = models
+            .iter()
+            .find(|model| model.id == HIDDEN_ID && model.unsupported.is_none())
+            .map(|model| model.app_ids.iter().copied().collect())
+            .unwrap_or_default();
+        *self.models.borrow_mut() = models;
+        self.select(selected_id);
+    }
+
+    fn select(&self, id: &str) {
+        *self.selected.borrow_mut() = Self::app_ids_of(&self.models.borrow(), id);
+    }
+
+    fn shows(&self, app_id: u32) -> bool {
+        self.selected
+            .borrow()
+            .as_ref()
+            .is_none_or(|ids| ids.contains(&app_id))
+    }
+
+    fn is_hidden_in_steam(&self, app_id: u32) -> bool {
+        self.hidden.borrow().contains(&app_id)
+    }
 }
 
 impl FilterState {
@@ -101,6 +144,8 @@ impl FilterState {
             .set(settings.boolean("filter-hide-no-unlocked"));
         self.hide_without_achievements
             .set(settings.boolean("filter-hide-without-achievements"));
+        self.hide_steam_hidden
+            .set(settings.boolean("filter-hide-steam-hidden"));
     }
 
     fn depends_on_counts(&self) -> bool {
@@ -489,6 +534,7 @@ pub fn create_main_ui(
     let search_text_lower: Rc<RefCell<String>> = Rc::new(RefCell::new(String::new()));
     let counts_ready: Rc<Cell<bool>> = Rc::new(Cell::new(false));
     let counts_wanted_by_profile: Rc<Cell<bool>> = Rc::new(Cell::new(false));
+    let collections: Rc<Collections> = Rc::new(Collections::default());
 
     let list_custom_filter = gtk::CustomFilter::new(clone!(
         #[strong]
@@ -497,6 +543,8 @@ pub fn create_main_ui(
         counts_ready,
         #[strong]
         search_text_lower,
+        #[strong]
+        collections,
         move |obj| {
             let app = obj.downcast_ref::<GSteamAppObject>().unwrap();
 
@@ -511,6 +559,13 @@ pub fn create_main_ui(
                 return false;
             }
             if filter_state.hide_never_launched.get() && app.last_played() == 0 {
+                return false;
+            }
+            let app_id = app.app_id();
+            if filter_state.hide_steam_hidden.get() && collections.is_hidden_in_steam(app_id) {
+                return false;
+            }
+            if !collections.shows(app_id) {
                 return false;
             }
 
@@ -707,14 +762,93 @@ pub fn create_main_ui(
             ));
         }
     ));
+    let collections_generation = Rc::new(Cell::new(0u64));
+    let refresh_collections: Rc<dyn Fn()> = Rc::new(clone!(
+        #[weak]
+        list_store,
+        #[weak]
+        list_custom_filter,
+        #[strong]
+        collections,
+        #[strong]
+        collections_generation,
+        #[strong]
+        sidebar,
+        #[strong]
+        settings,
+        #[strong]
+        on_filters_changed,
+        move || {
+            let library: Vec<u32> = (0..list_store.n_items())
+                .filter_map(|i| list_store.item(i).and_downcast::<GSteamAppObject>())
+                .filter(|app| !app.is_synthetic())
+                .map(|app| app.app_id())
+                .collect();
+            if library.is_empty() {
+                return;
+            }
+            let generation = collections_generation.get() + 1;
+            collections_generation.set(generation);
+            let handle = spawn_blocking(move || (GetCollections { library }).request());
+            MainContext::default().spawn_local(clone!(
+                #[weak]
+                list_custom_filter,
+                #[strong]
+                collections,
+                #[strong]
+                collections_generation,
+                #[strong]
+                sidebar,
+                #[strong]
+                settings,
+                #[strong]
+                on_filters_changed,
+                async move {
+                    let models = match handle.await {
+                        Ok(Ok(models)) => models,
+                        Ok(Err(e)) => {
+                            crate::dev_println!("CLIENT", "No collections: {e}");
+                            Vec::new()
+                        }
+                        Err(e) => {
+                            eprintln!("[CLIENT] Spawn blocking error: {e:?}");
+                            Vec::new()
+                        }
+                    };
+                    if collections_generation.get() != generation {
+                        return;
+                    }
+                    let selected = settings.string("filter-collection");
+                    sidebar.set_collections(&models, selected.as_str());
+                    collections.store(models, selected.as_str());
+                    list_custom_filter.changed(gtk::FilterChange::Different);
+                    on_filters_changed();
+                }
+            ));
+        }
+    ));
+    sidebar.connect_collection_selected(clone!(
+        #[strong]
+        settings,
+        move |id| {
+            if settings.string("filter-collection") != id
+                && let Err(e) = settings.set_string("filter-collection", &id)
+            {
+                eprintln!("[CLIENT] Error saving filter-collection setting: {e:?}");
+            }
+        }
+    ));
     let on_library_loaded: Rc<dyn Fn()> = Rc::new(clone!(
         #[strong]
         counts_prefilled,
         #[strong]
         prefill_counts,
+        #[strong]
+        refresh_collections,
         move || {
             counts_prefilled.set(false);
             prefill_counts();
+            refresh_collections();
         }
     ));
     let on_open_app: Rc<dyn Fn(&GSteamAppObject)> = Rc::new(clone!(
@@ -914,6 +1048,7 @@ pub fn create_main_ui(
         &list_custom_sorter,
         filter_state.clone(),
         sort_mode_cache.clone(),
+        collections.clone(),
         on_filters_changed.clone(),
         on_apps_retired,
     );

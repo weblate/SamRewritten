@@ -15,6 +15,7 @@
 
 use std::os::raw::{c_char, c_void};
 
+use crate::steam_client::client_unified_messages_vtable::IClientUnifiedMessages;
 use crate::steam_client::client_user_stats_map_vtable::IClientUserStatsMap;
 use crate::steam_client::client_user_vtable::IClientUser;
 use crate::steam_client::steamworks_types::{HSteamPipe, HSteamUser};
@@ -54,6 +55,41 @@ pub struct IClientEngineVTable {
         HSteamPipe,
         *const c_char,
     ) -> *mut IClientUserStatsMap,
+    pub _vt22: *const c_void,
+    pub _vt23: *const c_void,
+    pub _vt24: *const c_void,
+    pub _vt25: *const c_void,
+    pub _vt26: *const c_void,
+    pub _vt27: *const c_void,
+    pub _vt28: *const c_void,
+    pub _vt29: *const c_void,
+    pub _vt30: *const c_void,
+    pub _vt31: *const c_void,
+    pub _vt32: *const c_void,
+    pub _vt33: *const c_void,
+    pub _vt34: *const c_void,
+    pub _vt35: *const c_void,
+    pub _vt36: *const c_void,
+    pub _vt37: *const c_void,
+    pub _vt38: *const c_void,
+    pub _vt39: *const c_void,
+    pub _vt40: *const c_void,
+    pub _vt41: *const c_void,
+    pub _vt42: *const c_void,
+    pub _vt43: *const c_void,
+    pub _vt44: *const c_void,
+    pub _vt45: *const c_void,
+    pub _vt46: *const c_void,
+    pub _vt47: *const c_void,
+    pub _vt48: *const c_void,
+    pub _vt49: *const c_void,
+    pub _vt50: *const c_void,
+    pub _vt51: *const c_void,
+    pub get_iclient_unified_messages: unsafe extern "C" fn(
+        *mut IClientEngine,
+        HSteamUser,
+        HSteamPipe,
+    ) -> *mut IClientUnifiedMessages,
 }
 
 pub const CLIENTENGINE_INTERFACE_VERSION: &str = "CLIENTENGINE_INTERFACE_VERSION005\0";

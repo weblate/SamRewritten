@@ -17,17 +17,24 @@
 //! widgets are views onto GSettings keys; `settings_bindings` re-runs the
 //! filter and sorter when they change.
 
+use crate::backend::steam_collections::{
+    CollectionModel, FAVORITE_ID, HIDDEN_ID, UnsupportedReason,
+};
 use crate::gui_frontend::i18n::{tr, tr_noop};
 use crate::gui_frontend::profile_view::identity::Identity;
 use crate::gui_frontend::widgets::shimmer_image::ShimmerImage;
 use gtk::gio::Settings;
 use gtk::glib;
 use gtk::glib::clone;
+use gtk::pango::EllipsizeMode;
 use gtk::prelude::*;
 use gtk::{
-    Align, Box, Button, CheckButton, Label, Orientation, PolicyType, ProgressBar, ScrolledWindow,
-    Separator, Spinner,
+    Align, Box, Button, CheckButton, DropDown, Label, ListItem, Orientation, PolicyType,
+    ProgressBar, ScrolledWindow, Separator, SignalListItemFactory, Spinner, StringList,
+    StringObject,
 };
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
 
 pub(super) const SIDEBAR_WIDTH: i32 = 232;
 const AVATAR_SIZE: i32 = 48;
@@ -65,6 +72,11 @@ const FILTERS: &[FilterSpec] = &[
     FilterSpec {
         key: "filter-only-idling",
         label: tr_noop("Only currently idling"),
+        invert: false,
+    },
+    FilterSpec {
+        key: "filter-hide-steam-hidden",
+        label: tr_noop("Hide hidden in Steam"),
         invert: false,
     },
     FilterSpec {
@@ -127,6 +139,39 @@ pub(super) struct Sidebar {
     loading_button: Button,
     loading_spinner: Spinner,
     loading_progress: ProgressBar,
+    collection_dropdown: DropDown,
+    collection_names: StringList,
+    collection_entries: Rc<RefCell<Vec<CollectionEntry>>>,
+    collection_rebuilding: Rc<Cell<bool>>,
+}
+
+struct CollectionEntry {
+    id: String,
+    unsupported: Option<UnsupportedReason>,
+}
+
+fn unsupported_tooltip(reason: UnsupportedReason) -> String {
+    match reason {
+        UnsupportedReason::SearchText => {
+            tr("Filters on a search term, which SamRewritten cannot reproduce exactly.")
+        }
+        UnsupportedReason::UnknownFilter => {
+            tr("Uses a Steam filter SamRewritten cannot reproduce exactly.")
+        }
+        UnsupportedReason::Unavailable => {
+            tr("Needs information from Steam that could not be read. Refresh to try again.")
+        }
+    }
+    .to_string()
+}
+
+fn collection_label(model: &CollectionModel) -> String {
+    match model.id.as_str() {
+        // Steam freezes a system collection's name in whichever language made it.
+        FAVORITE_ID => tr("Favorites").to_string(),
+        _ if model.name.is_empty() => model.id.clone(),
+        _ => model.name.clone(),
+    }
 }
 
 fn section_label(text: &str) -> Label {
@@ -270,6 +315,82 @@ pub(super) fn build_sidebar(settings: &Settings) -> Sidebar {
         content.append(&check);
     }
 
+    content.append(&section_label(tr("Steam collection").as_str()));
+    let collection_names = StringList::new(&[tr("All games").as_str()]);
+    let collection_entries: Rc<RefCell<Vec<CollectionEntry>>> =
+        Rc::new(RefCell::new(vec![CollectionEntry {
+            id: String::new(),
+            unsupported: None,
+        }]));
+    let collection_rebuilding: Rc<Cell<bool>> = Rc::new(Cell::new(false));
+    let list_factory = SignalListItemFactory::new();
+    list_factory.connect_setup(|_, item| {
+        let Some(item) = item.downcast_ref::<ListItem>() else {
+            return;
+        };
+        let label = Label::builder()
+            .xalign(0.0)
+            .ellipsize(EllipsizeMode::End)
+            .build();
+        item.set_child(Some(&label));
+    });
+    list_factory.connect_bind(clone!(
+        #[strong]
+        collection_entries,
+        move |_, item| {
+            let Some(item) = item.downcast_ref::<ListItem>() else {
+                return;
+            };
+            let Some(label) = item.child().and_downcast::<Label>() else {
+                return;
+            };
+            let text = item
+                .item()
+                .and_downcast::<StringObject>()
+                .map(|s| s.string())
+                .unwrap_or_default();
+            label.set_label(&text);
+
+            let reason = collection_entries
+                .borrow()
+                .get(item.position() as usize)
+                .and_then(|entry| entry.unsupported);
+            let usable = reason.is_none();
+            // Touch only the ListItem and our label: the row widget behind them
+            // crashes the list on its next recycle.
+            item.set_selectable(usable);
+            item.set_activatable(usable);
+            label.set_sensitive(usable);
+            label.set_tooltip_text(reason.map(unsupported_tooltip).as_deref());
+        }
+    ));
+    let collection_dropdown = DropDown::builder()
+        .model(&collection_names)
+        .list_factory(&list_factory)
+        .build();
+    content.append(&collection_dropdown);
+
+    settings.connect_changed(
+        Some("filter-collection"),
+        clone!(
+            #[weak]
+            collection_dropdown,
+            #[strong]
+            collection_entries,
+            move |s, _| {
+                let id = s.string("filter-collection");
+                let position = collection_entries
+                    .borrow()
+                    .iter()
+                    .position(|entry| entry.id == id)
+                    .unwrap_or(0) as u32;
+                if collection_dropdown.selected() != position {
+                    collection_dropdown.set_selected(position);
+                }
+            }
+        ),
+    );
+
     content.append(&Separator::new(Orientation::Horizontal));
     content.append(&section_label(tr("Sort by").as_str()));
 
@@ -321,6 +442,7 @@ pub(super) fn build_sidebar(settings: &Settings) -> Sidebar {
             for spec in FILTERS {
                 settings.reset(spec.key);
             }
+            settings.reset("filter-collection");
         }
     ));
     content.append(&reset_button);
@@ -351,6 +473,10 @@ pub(super) fn build_sidebar(settings: &Settings) -> Sidebar {
         loading_button,
         loading_spinner,
         loading_progress,
+        collection_dropdown,
+        collection_names,
+        collection_entries,
+        collection_rebuilding,
     };
     sidebar.set_counts_loading(false, 0.0);
     sidebar
@@ -373,6 +499,68 @@ impl Sidebar {
 
     pub(super) fn connect_profile_clicked(&self, f: impl Fn() + 'static) {
         self.profile_button.connect_clicked(move |_| f());
+    }
+
+    pub(super) fn set_collections(&self, models: &[CollectionModel], selected_id: &str) {
+        let mut entries = vec![CollectionEntry {
+            id: String::new(),
+            unsupported: None,
+        }];
+        let mut labels = vec![tr("All games").to_string()];
+        for model in models {
+            if model.id == HIDDEN_ID {
+                continue;
+            }
+            labels.push(collection_label(model));
+            entries.push(CollectionEntry {
+                id: model.id.clone(),
+                unsupported: model.unsupported,
+            });
+        }
+        let selected = entries
+            .iter()
+            .position(|entry| entry.id == selected_id)
+            .unwrap_or(0);
+
+        // Rows bind as they are added, and each splice hop looks like a click.
+        *self.collection_entries.borrow_mut() = entries;
+        self.collection_rebuilding.set(true);
+        let additions: Vec<&str> = labels.iter().map(String::as_str).collect();
+        self.collection_names
+            .splice(0, self.collection_names.n_items(), &additions);
+        self.collection_dropdown.set_selected(selected as u32);
+        self.collection_rebuilding.set(false);
+    }
+
+    pub(super) fn connect_collection_selected(&self, f: impl Fn(String) + 'static) {
+        let entries = Rc::clone(&self.collection_entries);
+        let rebuilding = Rc::clone(&self.collection_rebuilding);
+        let last_usable = RefCell::new(String::new());
+        self.collection_dropdown
+            .connect_selected_notify(move |drop| {
+                let entry = entries
+                    .borrow()
+                    .get(drop.selected() as usize)
+                    .map(|entry| (entry.id.clone(), entry.unsupported.is_some()));
+                let Some((id, unsupported)) = entry else {
+                    return;
+                };
+                if unsupported {
+                    let back = entries
+                        .borrow()
+                        .iter()
+                        .position(|entry| {
+                            entry.id == *last_usable.borrow() && entry.unsupported.is_none()
+                        })
+                        .unwrap_or(0);
+                    drop.set_selected(back as u32);
+                    return;
+                }
+                *last_usable.borrow_mut() = id.clone();
+                if !rebuilding.get() {
+                    f(id);
+                }
+            });
     }
 
     pub(super) fn set_identity(&self, identity: &Identity) {

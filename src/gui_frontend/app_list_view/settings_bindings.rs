@@ -14,7 +14,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::gui_frontend::MainApplication;
-use crate::gui_frontend::app_list_view::FilterState;
+use crate::gui_frontend::app_list_view::{Collections, FilterState};
 use crate::gui_frontend::dialogs::show_message_dialog;
 use crate::gui_frontend::gsettings::get_settings;
 use crate::gui_frontend::i18n::{STEAM_LANGUAGES, tr, tr_noop};
@@ -38,8 +38,10 @@ const FILTER_KEYS: &[&str] = &[
     "filter-hide-never-launched",
     "filter-hide-no-unlocked",
     "filter-hide-without-achievements",
+    "filter-hide-steam-hidden",
 ];
 
+#[allow(clippy::too_many_arguments)]
 pub fn setup_settings_bindings(
     application: &MainApplication,
     settings: &Settings,
@@ -47,6 +49,7 @@ pub fn setup_settings_bindings(
     list_custom_sorter: &CustomSorter,
     filter_state: Rc<FilterState>,
     sort_mode_cache: Rc<RefCell<String>>,
+    collections: Rc<Collections>,
     on_filters_changed: Rc<dyn Fn()>,
     on_apps_retired: Rc<dyn Fn()>,
 ) {
@@ -71,6 +74,23 @@ pub fn setup_settings_bindings(
             ),
         );
     }
+
+    settings.connect_changed(
+        Some("filter-collection"),
+        clone!(
+            #[weak]
+            list_custom_filter,
+            #[strong]
+            collections,
+            #[strong]
+            on_filters_changed,
+            move |s, _| {
+                collections.select(s.string("filter-collection").as_str());
+                list_custom_filter.changed(gtk::FilterChange::Different);
+                on_filters_changed();
+            }
+        ),
+    );
 
     // Sort radio: two-way bound to gsettings; re-sorts on any change.
     application.add_action(&settings.create_action("app-sort"));

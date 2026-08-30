@@ -2,6 +2,9 @@ use crate::utils::ipc_types::SamError;
 use std::path::PathBuf;
 use std::sync::{OnceLock, RwLock};
 
+#[cfg(all(test, target_os = "linux"))]
+pub static TEST_INSTALL_ROOT: OnceLock<PathBuf> = OnceLock::new();
+
 pub struct SteamLocator {
     lib_path: OnceLock<Option<PathBuf>>,
     user_game_stats_schema_prefix: OnceLock<Option<String>>,
@@ -38,16 +41,14 @@ impl SteamLocator {
     }
 
     #[cfg(target_os = "linux")]
-    pub fn get_local_config_path(account_id: u32) -> Option<PathBuf> {
-        let relative = format!("userdata/{}/config/localconfig.vdf", account_id);
+    fn install_root_holding(relative: &str) -> Option<PathBuf> {
         Self::get_local_steam_install_root_folders()
             .into_iter()
-            .map(|root| root.join(&relative))
-            .find(|p| p.exists())
+            .find(|root| root.join(relative).exists())
     }
 
     #[cfg(target_os = "windows")]
-    pub fn get_local_config_path(account_id: u32) -> Option<PathBuf> {
+    fn steam_root_from_registry() -> Option<PathBuf> {
         use winreg::RegKey;
         use winreg::enums::HKEY_CURRENT_USER;
 
@@ -55,12 +56,52 @@ impl SteamLocator {
             .open_subkey("SOFTWARE\\Valve\\Steam")
             .ok()?;
         let steam_path: String = subkey.get_value("SteamPath").ok()?;
-        let path = PathBuf::from(steam_path)
-            .join("userdata")
-            .join(account_id.to_string())
-            .join("config")
-            .join("localconfig.vdf");
+        Some(PathBuf::from(steam_path))
+    }
+
+    #[cfg(target_os = "windows")]
+    fn install_root_holding(relative: &str) -> Option<PathBuf> {
+        let root = Self::steam_root_from_registry()?;
+        root.join(relative).exists().then_some(root)
+    }
+
+    fn find_in_install_roots(relative: &str) -> Option<PathBuf> {
+        Some(Self::install_root_holding(relative)?.join(relative))
+    }
+
+    fn collections_relative(account_id: u32) -> String {
+        format!("userdata/{account_id}/config/cloudstorage/cloud-storage-namespace-1.json")
+    }
+
+    /// Pinned to the install the collections came from, not whichever root holds
+    /// the file first: a forgotten install's stale metadata is a wrong answer.
+    fn in_collections_install(account_id: u32, relative: &str) -> Option<PathBuf> {
+        let path =
+            Self::install_root_holding(&Self::collections_relative(account_id))?.join(relative);
         path.exists().then_some(path)
+    }
+
+    pub fn get_local_config_path(account_id: u32) -> Option<PathBuf> {
+        Self::find_in_install_roots(&format!("userdata/{account_id}/config/localconfig.vdf"))
+    }
+
+    pub fn get_collections_path(account_id: u32) -> Option<PathBuf> {
+        Self::find_in_install_roots(&Self::collections_relative(account_id))
+    }
+
+    pub fn get_collections_local_config_path(account_id: u32) -> Option<PathBuf> {
+        Self::in_collections_install(
+            account_id,
+            &format!("userdata/{account_id}/config/localconfig.vdf"),
+        )
+    }
+
+    pub fn get_app_info_path(account_id: u32) -> Option<PathBuf> {
+        Self::in_collections_install(account_id, "appcache/appinfo.vdf")
+    }
+
+    pub fn get_library_folders_path(account_id: u32) -> Option<PathBuf> {
+        Self::in_collections_install(account_id, "steamapps/libraryfolders.vdf")
     }
 
     pub fn get_local_app_banner_file_prefix_cached(&self) -> Option<String> {
@@ -156,6 +197,11 @@ impl SteamLocator {
         // Explicit override wins over everything.
         if let Ok(path) = std::env::var("SAM_STEAM_INSTALL_ROOT") {
             return vec![PathBuf::from(path)];
+        }
+
+        #[cfg(test)]
+        if let Some(root) = TEST_INSTALL_ROOT.get() {
+            return vec![root.clone()];
         }
 
         // When SAM itself runs as a snap, the real home (with the user's Steam

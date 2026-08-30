@@ -99,7 +99,6 @@ pub fn get_app_cache_dir() -> PathBuf {
 
 // Ensure <temp>/samrewritten-<uid>
 // The dir name is resolved once; create_dir_all still runs per call so it self-heals
-#[cfg(feature = "gui")]
 pub fn get_temp_cache_dir() -> &'static std::path::Path {
     static DIR: std::sync::LazyLock<PathBuf> = std::sync::LazyLock::new(|| {
         // /tmp is shared and sticky, so a plain `samrewritten` would be owned by whoever

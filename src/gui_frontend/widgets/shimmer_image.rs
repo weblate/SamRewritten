@@ -370,6 +370,7 @@ mod imp {
                                 match http_client()
                                     .get(&url_string)
                                     .send()
+                                    .and_then(|res| res.error_for_status())
                                     .and_then(|res| res.bytes())
                                 {
                                     Ok(bytes) => {

@@ -13,9 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::backend::app_info;
 use crate::backend::app_lister::{AppLister, fetch_achievement_counts};
 use crate::backend::connected_steam::ConnectedSteam;
-use crate::backend::local_config::parse_localconfig;
+use crate::backend::friend_library;
+use crate::backend::local_config::{PlaytimeMap, parse_localconfig};
 use crate::backend::local_stats::{LocalIndex, read_schema_languages};
 use crate::backend::orchestrator_client::AppProgress;
 use crate::backend::progress_io::{MAX_CONCURRENT_APPS, run_command_on_apps_concurrent};
@@ -23,6 +25,7 @@ use crate::backend::stat_definitions::{AchievementInfo, StatInfo};
 use crate::backend::stats_access::{
     app_server_command, idle_app_server_command, set_stealth, stealth,
 };
+use crate::backend::steam_collections::{self, CollectionModel, LibraryFacts};
 use crate::backend::user_unlock_times;
 use crate::dev_println;
 use crate::utils::bidir_child::BidirChild;
@@ -38,6 +41,7 @@ use serde::de::DeserializeOwned;
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
 use std::sync::{LazyLock, Mutex};
+use std::time::{Duration, Instant};
 
 /// Forward `command` to the app server and return the framed response bytes
 /// (length prefix + JSON) suitable for proxying straight back to the parent.
@@ -116,6 +120,99 @@ fn ensure_connected(slot: &mut Option<ConnectedSteam>) -> Result<&mut ConnectedS
         }
     }
     Ok(slot.as_mut().unwrap())
+}
+
+/// Spent holding the orchestrator lock, so every other request waits on it.
+const FRIEND_LIBRARY_BUDGET: Duration = Duration::from_secs(5);
+const FRIEND_LIBRARY_FLOOR: Duration = Duration::from_millis(500);
+
+fn collections_for(connected_steam: &mut ConnectedSteam, library: &[u32]) -> Vec<CollectionModel> {
+    let Ok(steam_id) = connected_steam.user.get_steam_id() else {
+        return Vec::new();
+    };
+    let account_id = user_unlock_times::account_id(steam_id.m_steamid);
+    let Some(path) = SteamLocator::get_collections_path(account_id) else {
+        dev_println!("ORCH", "No collections file for account {account_id}");
+        return Vec::new();
+    };
+    let Ok(collections) = steam_collections::parse(&path) else {
+        return Vec::new();
+    };
+
+    let mut playtimes = PlaytimeMap::new();
+    let mut installed = HashSet::new();
+    let mut app_info = HashMap::new();
+    let mut have_playtimes = true;
+    let mut have_installed = true;
+    let mut have_app_info = true;
+    if collections.iter().any(|c| c.needs_playtimes()) {
+        match SteamLocator::get_collections_local_config_path(account_id)
+            .and_then(|p| parse_localconfig(&p).ok())
+        {
+            Some(loaded) => playtimes = loaded,
+            None => have_playtimes = false,
+        }
+    }
+    if collections.iter().any(|c| c.needs_installed()) {
+        match SteamLocator::get_library_folders_path(account_id)
+            .and_then(|p| steam_collections::installed_apps(&p))
+        {
+            Some(loaded) => installed = loaded,
+            None => have_installed = false,
+        }
+    }
+    if collections.iter().any(|c| c.needs_app_info()) {
+        let wanted: HashSet<u32> = library.iter().copied().collect();
+        match SteamLocator::get_app_info_path(account_id)
+            .and_then(|p| app_info::read(&p, &wanted).ok())
+        {
+            Some(loaded) => app_info = loaded,
+            None => have_app_info = false,
+        }
+    }
+
+    let mut friends_owned: HashMap<u32, HashSet<u32>> = HashMap::new();
+    let mut wanted_friends: Vec<u32> = collections.iter().flat_map(|c| c.friend_ids()).collect();
+    wanted_friends.sort_unstable();
+    wanted_friends.dedup();
+    let mut uncached: Vec<u32> = Vec::new();
+    for friend in wanted_friends {
+        match friend_library::cached_owned_games(friend) {
+            Some(owned) => {
+                friends_owned.insert(friend, owned);
+            }
+            None => uncached.push(friend),
+        }
+    }
+
+    if !uncached.is_empty() && connected_steam.user.b_logged_on() != Ok(false) {
+        match connected_steam.unified_messages() {
+            Ok(unified) => {
+                let deadline = Instant::now() + FRIEND_LIBRARY_BUDGET;
+                for friend in uncached {
+                    if deadline.saturating_duration_since(Instant::now()) < FRIEND_LIBRARY_FLOOR {
+                        dev_println!("ORCH", "Out of time before reading friend {friend}");
+                        break;
+                    }
+                    if let Ok(owned) = friend_library::owned_games(&unified, friend, deadline) {
+                        friends_owned.insert(friend, owned);
+                    }
+                }
+            }
+            Err(e) => dev_println!("ORCH", "No unified messages interface: {e}"),
+        }
+    }
+
+    let facts = LibraryFacts {
+        playtimes: &playtimes,
+        app_info: &app_info,
+        installed: &installed,
+        have_app_info,
+        have_playtimes,
+        have_installed,
+        friends_owned: &friends_owned,
+    };
+    steam_collections::resolve(collections, library, &facts)
 }
 
 /// Drop a stale connection if Steam was restarted, then `ensure_connected`. Used
@@ -697,6 +794,14 @@ fn process_command(
                 Err(()) => Err(SamError::SteamConnectionFailed),
             };
             send(tx, &SteamResponse::from(steam_id));
+        }
+
+        SteamCommand::GetCollections(library) => {
+            let collections = match orchestrator_connection(connected_steam) {
+                Ok(cs) => collections_for(cs, &library),
+                Err(()) => Vec::new(),
+            };
+            send(tx, &SteamResponse::Success(collections));
         }
 
         SteamCommand::GetUserAvatar(steam_id64) => {

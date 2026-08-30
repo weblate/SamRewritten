@@ -20,6 +20,8 @@ pub enum SteamClientError {
     PipeReleaseFailed,
     UserConnectionFailed,
     InterfaceCreationFailed(String),
+    MethodCallFailed(String),
+    MethodResultFailed(String, i32),
     AppNotFound,
     UnknownError,
 }
@@ -35,6 +37,12 @@ impl std::fmt::Display for SteamClientError {
             }
             SteamClientError::InterfaceCreationFailed(name) => {
                 write!(f, "Failed to create steam interface: {}", name)
+            }
+            SteamClientError::MethodCallFailed(detail) => {
+                write!(f, "Steam did not answer: {}", detail)
+            }
+            SteamClientError::MethodResultFailed(method, result) => {
+                write!(f, "{} failed with EResult {}", method, result)
             }
             SteamClientError::AppNotFound => write!(f, "App not found"),
             SteamClientError::UnknownError => write!(f, "Unknown Steam error"),

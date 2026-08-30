@@ -18,6 +18,8 @@ use crate::steam_client::client_user_vtable::IClientUser;
 use crate::steam_client::steamworks_types::AppId_t;
 use std::rc::Rc;
 
+const MAX_SUBSCRIBED_APPS: u32 = 1 << 20;
+
 pub struct ClientUser {
     inner: Rc<ClientUserInner>,
 }
@@ -44,9 +46,14 @@ impl ClientUser {
         unsafe {
             let vt = (*self.inner.ptr).vtable.as_ref().expect("vtable null");
             let count = (vt.get_subscribed_apps)(self.inner.ptr, std::ptr::null_mut(), 0, false);
+            if count > MAX_SUBSCRIBED_APPS {
+                return Vec::new();
+            }
             let mut buf: Vec<AppId_t> = vec![0; count as usize];
             let written = (vt.get_subscribed_apps)(self.inner.ptr, buf.as_mut_ptr(), count, false);
-            buf.truncate(written as usize);
+            // Handed too small a buffer, Steam writes nothing and still
+            // reports the count, so the zeroes are not app ids.
+            buf.truncate(if written > count { 0 } else { written as usize });
             buf
         }
     }

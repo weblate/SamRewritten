@@ -152,6 +152,7 @@ pub enum SteamCommand {
     /// `(app_id, steam_id64)`. Counts a user's achieved vs total achievements for
     /// `app_id` — the picker's per-row hint. App-scoped like `GetFriendUnlockTimes`.
     GetFriendAchievementCount(u32, u64),
+    GetCollections(Vec<u32>),
 }
 
 #[derive(Serialize, Deserialize, Debug)]

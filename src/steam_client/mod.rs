@@ -15,6 +15,8 @@
 
 pub mod client_engine_vtable;
 pub mod client_engine_wrapper;
+pub mod client_unified_messages_vtable;
+pub mod client_unified_messages_wrapper;
 pub mod client_user_stats_map_vtable;
 pub mod client_user_stats_map_wrapper;
 pub mod client_user_vtable;
