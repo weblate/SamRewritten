@@ -175,6 +175,7 @@ fn collections_for(connected_steam: &mut ConnectedSteam, library: &[u32]) -> Vec
     let mut wanted_friends: Vec<u32> = collections.iter().flat_map(|c| c.friend_ids()).collect();
     wanted_friends.sort_unstable();
     wanted_friends.dedup();
+    let online = connected_steam.user.b_logged_on() != Ok(false);
     let mut uncached: Vec<u32> = Vec::new();
     for friend in wanted_friends {
         match friend_library::cached_owned_games(friend) {
@@ -185,7 +186,7 @@ fn collections_for(connected_steam: &mut ConnectedSteam, library: &[u32]) -> Vec
         }
     }
 
-    if !uncached.is_empty() && connected_steam.user.b_logged_on() != Ok(false) {
+    if !uncached.is_empty() && online {
         match connected_steam.unified_messages() {
             Ok(unified) => {
                 let deadline = Instant::now() + FRIEND_LIBRARY_BUDGET;
@@ -211,6 +212,7 @@ fn collections_for(connected_steam: &mut ConnectedSteam, library: &[u32]) -> Vec
         have_playtimes,
         have_installed,
         friends_owned: &friends_owned,
+        online,
     };
     steam_collections::resolve(collections, library, &facts)
 }
@@ -783,6 +785,15 @@ fn process_command(
                 Err(()) => Err(SamError::SteamConnectionFailed),
             };
             send(tx, &SteamResponse::from(friends));
+        }
+
+        SteamCommand::GetSteamOnline => {
+            // Offline is Steam running without a connection, not Steam absent.
+            let online = match orchestrator_connection(connected_steam) {
+                Ok(cs) => cs.user.b_logged_on() != Ok(false),
+                Err(()) => true,
+            };
+            send(tx, &SteamResponse::from(Ok::<bool, SamError>(online)));
         }
 
         SteamCommand::GetCurrentUser => {

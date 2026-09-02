@@ -20,6 +20,7 @@ use crate::gui_frontend::application_actions::{
     set_app_action_enabled, set_selection_actions_enabled, set_timed_unlock_actions_enabled,
 };
 use crate::gui_frontend::gobjects::achievement::GAchievementObject;
+use crate::gui_frontend::gobjects::online_state::probe;
 use crate::gui_frontend::gobjects::stat::GStatObject;
 use crate::gui_frontend::gobjects::steam_app::GSteamAppObject;
 use crate::gui_frontend::i18n::tr;
@@ -88,6 +89,9 @@ pub fn create_refresh_app_list_action(
                 }
                 .request()
             });
+            // Not on the success branch: an empty or failed library is the
+            // likeliest offline outcome.
+            probe();
             MainContext::default().spawn_local(clone!(
                 #[weak]
                 grid_view,

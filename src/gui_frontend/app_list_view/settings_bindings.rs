@@ -16,6 +16,7 @@
 use crate::gui_frontend::MainApplication;
 use crate::gui_frontend::app_list_view::{Collections, FilterState};
 use crate::gui_frontend::dialogs::show_message_dialog;
+use crate::gui_frontend::gobjects::online_state::{GOnlineState, online_state};
 use crate::gui_frontend::gsettings::get_settings;
 use crate::gui_frontend::i18n::{STEAM_LANGUAGES, tr, tr_noop};
 use crate::gui_frontend::request::{Request, SetStealthMode};
@@ -245,7 +246,49 @@ pub fn setup_settings_bindings(
     );
 
     // Pushing can fail before the orchestrator exists; the spawn path resends.
-    application.add_action(&settings.create_action("appear-in-game"));
+    let appear_in_game = SimpleAction::new_stateful(
+        "appear-in-game",
+        None,
+        &settings.boolean("appear-in-game").to_variant(),
+    );
+    appear_in_game.connect_activate(clone!(
+        #[strong]
+        settings,
+        move |action, _| {
+            let value = !action.state().and_then(|s| s.get::<bool>()).unwrap_or(true);
+            if let Err(e) = settings.set_boolean("appear-in-game", value) {
+                eprintln!("[CLIENT] Error saving appear-in-game setting: {e:?}");
+            }
+        }
+    ));
+    application.add_action(&appear_in_game);
+    settings.connect_changed(
+        Some("appear-in-game"),
+        clone!(
+            #[strong]
+            appear_in_game,
+            move |s, _| appear_in_game.set_state(&s.boolean("appear-in-game").to_variant())
+        ),
+    );
+
+    // Stealth writes need a stats load Steam refuses offline.
+    let apply_online = clone!(
+        #[strong]
+        settings,
+        #[strong]
+        appear_in_game,
+        move |state: &GOnlineState| {
+            let online = state.online();
+            if !online
+                && !settings.boolean("appear-in-game")
+                && let Err(e) = settings.set_boolean("appear-in-game", true)
+            {
+                eprintln!("[CLIENT] Error forcing appear-in-game on: {e:?}");
+            }
+            appear_in_game.set_enabled(online && settings.is_writable("appear-in-game"));
+        }
+    );
+
     let wanted_stealth = Arc::new(AtomicBool::new(!settings.boolean("appear-in-game")));
     settings.connect_changed(
         Some("appear-in-game"),
@@ -290,6 +333,11 @@ pub fn setup_settings_bindings(
             }
         ),
     );
+
+    // After the listener above: forcing the key on is what pushes stealth off.
+    let online = online_state();
+    apply_online(&online);
+    online.connect_online_notify(apply_online);
 
     // Disable animations: cached in a global AtomicBool that SteamAppCard reads.
     ANIMATIONS_DISABLED.store(settings.boolean("disable-animations"), Ordering::Relaxed);

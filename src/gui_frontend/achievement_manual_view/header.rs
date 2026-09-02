@@ -17,6 +17,7 @@ use super::copy_controls::CopyControls;
 use crate::gui_frontend::gobjects::mode_state::{
     GUnlockModeState, MODE_AUTOCOMMIT, MODE_COPY_TIMING, MODE_DEFERRED,
 };
+use crate::gui_frontend::gobjects::online_state::{GOnlineState, online_state};
 use crate::gui_frontend::i18n::tr;
 use gtk::glib::{self, clone};
 use gtk::prelude::*;
@@ -169,6 +170,22 @@ pub(super) fn create_header(
             }
         }
     ));
+
+    let online = online_state();
+    let apply_online = clone!(
+        #[weak]
+        copy_toggle,
+        #[weak]
+        instant_toggle,
+        move |state: &GOnlineState| {
+            copy_toggle.set_sensitive(state.online());
+            if !state.online() && copy_toggle.is_active() {
+                instant_toggle.set_active(true);
+            }
+        }
+    );
+    apply_online(&online);
+    online.connect_online_notify(apply_online);
 
     // Each mode reveals only its own controls.
     let visibility_apply = clone!(

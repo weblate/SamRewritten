@@ -20,6 +20,7 @@
 use crate::backend::steam_collections::{
     CollectionModel, FAVORITE_ID, HIDDEN_ID, UnsupportedReason,
 };
+use crate::gui_frontend::gobjects::online_state::{GOnlineState, online_state};
 use crate::gui_frontend::i18n::{tr, tr_noop};
 use crate::gui_frontend::profile_view::identity::Identity;
 use crate::gui_frontend::widgets::shimmer_image::ShimmerImage;
@@ -42,6 +43,7 @@ const AVATAR_SIZE: i32 = 48;
 struct FilterSpec {
     key: &'static str,
     label: &'static str,
+    needs_counts: bool,
     /// The checkbox shows the negation of the key. Only `filter-junk` uses it:
     /// junk is hidden by default, so a `Hide junk` box would sit permanently
     /// ticked for everyone.
@@ -51,36 +53,43 @@ struct FilterSpec {
 const FILTERS: &[FilterSpec] = &[
     FilterSpec {
         key: "filter-hide-without-achievements",
+        needs_counts: true,
         label: tr_noop("Hide with no achievements"),
         invert: false,
     },
     FilterSpec {
         key: "filter-hide-fully-unlocked",
+        needs_counts: true,
         label: tr_noop("Hide at 100%"),
         invert: false,
     },
     FilterSpec {
         key: "filter-hide-no-unlocked",
+        needs_counts: true,
         label: tr_noop("Hide at 0%"),
         invert: false,
     },
     FilterSpec {
         key: "filter-hide-never-launched",
+        needs_counts: false,
         label: tr_noop("Hide never launched"),
         invert: false,
     },
     FilterSpec {
         key: "filter-only-idling",
+        needs_counts: false,
         label: tr_noop("Only currently idling"),
         invert: false,
     },
     FilterSpec {
         key: "filter-hide-steam-hidden",
+        needs_counts: false,
         label: tr_noop("Hide hidden in Steam"),
         invert: false,
     },
     FilterSpec {
         key: "filter-junk",
+        needs_counts: false,
         label: tr_noop("Show junk"),
         invert: true,
     },
@@ -125,6 +134,21 @@ const SORT_MODES: &[SortSpec] = &[
     },
 ];
 
+pub(super) fn drop_counts_dependent_settings(settings: &Settings) {
+    if sort_needs_counts(settings.string("app-sort").as_str())
+        && let Err(e) = settings.set_string("app-sort", "alphabetical")
+    {
+        eprintln!("[CLIENT] Error saving app-sort setting: {e:?}");
+    }
+    for spec in FILTERS.iter().filter(|spec| spec.needs_counts) {
+        if settings.boolean(spec.key)
+            && let Err(e) = settings.set_boolean(spec.key, false)
+        {
+            eprintln!("[CLIENT] Error saving {} setting: {e:?}", spec.key);
+        }
+    }
+}
+
 pub(super) fn sort_needs_counts(value: &str) -> bool {
     SORT_MODES
         .iter()
@@ -160,6 +184,9 @@ fn unsupported_tooltip(reason: UnsupportedReason) -> String {
         }
         UnsupportedReason::Unavailable => {
             tr("Needs information from Steam that could not be read. Refresh to try again.")
+        }
+        UnsupportedReason::Offline => {
+            tr("Needs your friends' games, which Steam can only tell us when it is online.")
         }
     }
     .to_string()
@@ -269,6 +296,16 @@ pub(super) fn build_sidebar(settings: &Settings) -> Sidebar {
     content.append(&profile_button);
     content.append(&Separator::new(Orientation::Horizontal));
 
+    let offline_notice = Label::builder()
+        .label(tr("Steam is offline. What needs its servers is turned off.").as_str())
+        .xalign(0.0)
+        .wrap(true)
+        .visible(false)
+        .margin_top(6)
+        .css_classes(["caption", "warning"])
+        .build();
+    content.append(&offline_notice);
+
     let loading_spinner = Spinner::builder().valign(Align::Center).build();
     let loading_title = Label::builder()
         .label(tr("Fetching completion…").as_str())
@@ -309,9 +346,13 @@ pub(super) fn build_sidebar(settings: &Settings) -> Sidebar {
     content.append(&loading_button);
 
     content.append(&section_label(tr("Filters").as_str()));
+    let mut counted: Vec<CheckButton> = Vec::new();
     for spec in FILTERS {
         let check = CheckButton::with_label(tr(spec.label).as_str());
         wire_check(settings, spec, &check);
+        if spec.needs_counts {
+            counted.push(check.clone());
+        }
         content.append(&check);
     }
 
@@ -360,7 +401,13 @@ pub(super) fn build_sidebar(settings: &Settings) -> Sidebar {
             // crashes the list on its next recycle.
             item.set_selectable(usable);
             item.set_activatable(usable);
-            label.set_sensitive(usable);
+            // Dimmed, not insensitive: an insensitive widget may never be picked
+            // for the tooltip that carries the reason.
+            if usable {
+                label.remove_css_class("dim-label");
+            } else {
+                label.add_css_class("dim-label");
+            }
             label.set_tooltip_text(reason.map(unsupported_tooltip).as_deref());
         }
     ));
@@ -418,9 +465,29 @@ pub(super) fn build_sidebar(settings: &Settings) -> Sidebar {
                 }
             }
         ));
+        if spec.needs_counts {
+            counted.push(radio.clone());
+        }
         content.append(&radio);
         radios.push((spec.value, radio));
     }
+    let online = online_state();
+    let profile_entry = profile_button.clone();
+    let apply_online = clone!(
+        #[strong]
+        settings,
+        move |state: &GOnlineState| {
+            let online = state.online();
+            offline_notice.set_visible(!online);
+            profile_entry.set_sensitive(online);
+            for control in &counted {
+                control.set_sensitive(online);
+            }
+            if !online {
+                drop_counts_dependent_settings(&settings);
+            }
+        }
+    );
     settings.connect_changed(Some("app-sort"), move |s, _| {
         let value = s.string("app-sort");
         for (mode, radio) in &radios {
@@ -429,6 +496,10 @@ pub(super) fn build_sidebar(settings: &Settings) -> Sidebar {
             }
         }
     });
+
+    // After the radios listen: it can drop the sort, and nothing would move.
+    apply_online(&online);
+    online.connect_online_notify(apply_online);
 
     let reset_button = Button::builder()
         .label(tr("Reset filters").as_str())

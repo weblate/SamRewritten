@@ -64,6 +64,7 @@ pub enum UnsupportedReason {
     SearchText,
     UnknownFilter,
     Unavailable,
+    Offline,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -183,6 +184,7 @@ pub struct LibraryFacts<'a> {
     pub have_playtimes: bool,
     pub have_installed: bool,
     pub friends_owned: &'a HashMap<u32, HashSet<AppId_t>>,
+    pub online: bool,
 }
 
 fn feature_matches(option: u32, info: &AppInfo) -> Option<bool> {
@@ -373,13 +375,17 @@ pub fn resolve(
         .into_iter()
         .map(|collection| {
             let unsupported = collection.unsupported.or_else(|| {
-                let starved = (collection.needs_app_info() && !facts.have_app_info)
+                let missing_friend = collection
+                    .friend_ids()
+                    .iter()
+                    .any(|id| !facts.friends_owned.contains_key(id));
+                if missing_friend && !facts.online {
+                    return Some(UnsupportedReason::Offline);
+                }
+                let starved = missing_friend
+                    || (collection.needs_app_info() && !facts.have_app_info)
                     || (collection.needs_playtimes() && !facts.have_playtimes)
-                    || (collection.needs_installed() && !facts.have_installed)
-                    || collection
-                        .friend_ids()
-                        .iter()
-                        .any(|id| !facts.friends_owned.contains_key(id));
+                    || (collection.needs_installed() && !facts.have_installed);
                 starved.then_some(UnsupportedReason::Unavailable)
             });
             let raw = collection.raw;
@@ -525,6 +531,7 @@ mod tests {
             have_playtimes: true,
             have_installed: true,
             friends_owned: &friends_owned,
+            online: true,
         };
         resolve(parsed(), &library, &facts)
             .into_iter()
@@ -668,6 +675,7 @@ mod tests {
             have_playtimes: false,
             have_installed: false,
             friends_owned: &friends_owned,
+            online: true,
         };
         let models: HashMap<String, CollectionModel> = resolve(parsed(), &library, &facts)
             .into_iter()
@@ -701,6 +709,7 @@ mod tests {
                 have_playtimes: playtimes,
                 have_installed: installed,
                 friends_owned: &HashMap::new(),
+                online: true,
             };
             resolve(parsed(), &[240, 730], &facts)
                 .into_iter()
@@ -791,6 +800,7 @@ mod tests {
             have_playtimes: true,
             have_installed: true,
             friends_owned: &friends_owned,
+            online: true,
         };
         let models: HashMap<String, CollectionModel> = resolve(parsed(), &library, &facts)
             .into_iter()

@@ -29,9 +29,11 @@ use crate::gui_frontend::MainApplication;
 use crate::gui_frontend::app_list_view_callbacks::switch_from_app_list_to_app;
 use crate::gui_frontend::app_view::create_app_view;
 use crate::gui_frontend::application_actions::{
-    set_selection_actions_enabled, set_timed_unlock_actions_enabled, setup_app_actions,
+    set_app_action_enabled, set_selection_actions_enabled, set_timed_unlock_actions_enabled,
+    setup_app_actions,
 };
 use crate::gui_frontend::dialogs::{choose_steam_install_then, show_message_dialog};
+use crate::gui_frontend::gobjects::online_state::{GOnlineState, online_state};
 use crate::gui_frontend::gobjects::steam_app::GSteamAppObject;
 use crate::gui_frontend::gsettings::get_settings;
 use crate::gui_frontend::i18n::tr;
@@ -67,7 +69,7 @@ use refresh_actions::{
     create_rescan_counts_action,
 };
 use settings_bindings::setup_settings_bindings;
-use sidebar::{build_sidebar, sort_needs_counts};
+use sidebar::{build_sidebar, drop_counts_dependent_settings, sort_needs_counts};
 use std::cell::{Cell, RefCell};
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
@@ -154,12 +156,6 @@ impl FilterState {
             || self.hide_without_achievements.get()
     }
 }
-
-const COUNT_FILTER_KEYS: &[&str] = &[
-    "filter-hide-fully-unlocked",
-    "filter-hide-no-unlocked",
-    "filter-hide-without-achievements",
-];
 
 #[cfg(feature = "adwaita")]
 const SIDEBAR_COLLAPSE_WIDTH: i32 = 1150;
@@ -676,9 +672,12 @@ pub fn create_main_ui(
         // Only landed counts can change what a completion filter decides, and
         // the search box mutates the store twice per keystroke.
         move |counts_moved: bool| {
-            let needs_counts = filter_state.depends_on_counts()
-                || sort_needs_counts(sort_mode_cache.borrow().as_str())
-                || counts_wanted_by_profile.get();
+            // Offline an uncovered app settles as a fabricated 0/0, and the
+            // completion filters would decide on that.
+            let needs_counts = online_state().online()
+                && (filter_state.depends_on_counts()
+                    || sort_needs_counts(sort_mode_cache.borrow().as_str())
+                    || counts_wanted_by_profile.get());
             let (loaded, total) = achievement_loader.counts_progress(&list_store);
             let ready = total > 0 && loaded == total;
             if ready {
@@ -952,6 +951,28 @@ pub fn create_main_ui(
         &sync_counts_state,
     );
     application.add_action(&action_rescan_counts);
+
+    // After the action exists, or the immediate call finds nothing to disable.
+    let apply_online_counts = clone!(
+        #[strong]
+        sync_counts_state,
+        #[weak]
+        application,
+        #[weak]
+        list_stack,
+        #[weak]
+        menu_model,
+        move |state: &GOnlineState| {
+            set_app_action_enabled(&application, "rescan_achievement_counts", state.online());
+            if !state.online() && list_stack.visible_child_name().as_deref() == Some("profile") {
+                set_context_popover_to_app_list_context(&menu_model, &application);
+                list_stack.set_visible_child_name("list");
+            }
+            sync_counts_state(false);
+        }
+    );
+    apply_online_counts(&online_state());
+    online_state().connect_online_notify(apply_online_counts);
     let on_rescan_all: Rc<dyn Fn()> = Rc::new(clone!(
         #[strong]
         action_rescan_counts,
@@ -1016,18 +1037,7 @@ pub fn create_main_ui(
             achievement_loader.cancel_backlog();
             counts_wanted_by_profile.set(false);
 
-            if sort_needs_counts(settings.string("app-sort").as_str())
-                && let Err(e) = settings.set_string("app-sort", "alphabetical")
-            {
-                eprintln!("[CLIENT] Error saving app-sort setting: {e:?}");
-            }
-            for key in COUNT_FILTER_KEYS {
-                if settings.boolean(key)
-                    && let Err(e) = settings.set_boolean(key, false)
-                {
-                    eprintln!("[CLIENT] Error saving {key} setting: {e:?}");
-                }
-            }
+            drop_counts_dependent_settings(&settings);
         }
     ));
 
@@ -1859,6 +1869,8 @@ pub fn create_main_ui(
                     });
                 }
                 app_stack.set_visible_child_name("loading");
+                // Already visible, so no notify, so the action below stays
+                // enabled -- the first load and the first probe both ride on it.
                 list_stack.set_visible_child_name("loading");
                 action_refresh_app_list.activate(None);
                 action_refresh_app_list.set_enabled(false);

@@ -218,6 +218,8 @@ request!(GetCollections { library: Vec<u32> } -> Vec<CollectionModel>
 
 request!(GetCurrentUser -> u64 => SteamCommand::GetCurrentUser);
 
+request!(GetSteamOnline -> bool => SteamCommand::GetSteamOnline);
+
 request!(GetUserAvatar { steam_id64: u64 } -> Option<AvatarImage>
     => SteamCommand::GetUserAvatar(steam_id64));
 
