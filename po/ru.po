@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SamRewritten\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-30 23:21+0200\n"
+"POT-Creation-Date: 2026-09-02 21:40+0200\n"
 "PO-Revision-Date: 2026-08-23 05:40+0000\n"
 "Last-Translator: AxelPAL\n"
 "Language-Team: Russian\n"
@@ -18,7 +18,7 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
 #: src/gui_frontend/ui_components.rs:159 src/gui_frontend/app_view.rs:62
-#: src/gui_frontend/app_list_view/mod.rs:380
+#: src/gui_frontend/app_list_view/mod.rs:421
 msgid "Loading..."
 msgstr "Загрузка..."
 
@@ -125,7 +125,7 @@ msgstr "ОК"
 #: src/gui_frontend/dialogs.rs:123 src/gui_frontend/dialogs.rs:150
 #: src/gui_frontend/profile_view/mod.rs:587
 #: src/gui_frontend/app_list_view/progress_actions.rs:424
-#: src/gui_frontend/app_list_view/refresh_actions.rs:433
+#: src/gui_frontend/app_list_view/refresh_actions.rs:437
 msgid "Cancel"
 msgstr "Отмена"
 
@@ -323,32 +323,32 @@ msgstr "Уже на цели или выше ({progress})"
 msgid "Auto-fill {count} achievement(s) ({progress})"
 msgstr "Автозаполнение: {count} достиж. ({progress})"
 
-#: src/gui_frontend/achievement_manual_view/header.rs:49
+#: src/gui_frontend/achievement_manual_view/header.rs:50
 msgid "Instant"
 msgstr "Мгновенно"
 
-#: src/gui_frontend/achievement_manual_view/header.rs:52
+#: src/gui_frontend/achievement_manual_view/header.rs:53
 msgid "Stage"
 msgstr "В очередь"
 
-#: src/gui_frontend/achievement_manual_view/header.rs:56
+#: src/gui_frontend/achievement_manual_view/header.rs:57
 msgid "Copy user"
 msgstr "Копировать пользователя"
 
-#: src/gui_frontend/achievement_manual_view/header.rs:74
+#: src/gui_frontend/achievement_manual_view/header.rs:75
 msgid "Auto-fill"
 msgstr "Автозаполнение"
 
-#: src/gui_frontend/achievement_manual_view/header.rs:77
+#: src/gui_frontend/achievement_manual_view/header.rs:78
 msgid "Configuration"
 msgstr "Настройки"
 
-#: src/gui_frontend/achievement_manual_view/header.rs:103
+#: src/gui_frontend/achievement_manual_view/header.rs:104
 #: src/gui_frontend/achievement_manual_view/copy_controls.rs:48
 msgid "Start"
 msgstr "Старт"
 
-#: src/gui_frontend/achievement_manual_view/header.rs:108
+#: src/gui_frontend/achievement_manual_view/header.rs:109
 msgid "Changes apply instantly"
 msgstr "Изменения применяются сразу"
 
@@ -442,112 +442,151 @@ msgstr "Ищите друзей или вставьте SteamID64"
 msgid "Clear selected user"
 msgstr "Сбросить выбранного пользователя"
 
-#: src/gui_frontend/app_list_view/mod.rs:401
+#: src/gui_frontend/app_list_view/mod.rs:442
 msgid "SamRewritten could not connect to Steam. Is it running?"
 msgstr "SamRewritten не смог подключиться к Steam. Он запущен?"
 
-#: src/gui_frontend/app_list_view/mod.rs:406
+#: src/gui_frontend/app_list_view/mod.rs:447
 msgid "Try again"
 msgstr "Повторить"
 
-#: src/gui_frontend/app_list_view/mod.rs:423
-#: src/gui_frontend/app_list_view/mod.rs:1605
+#: src/gui_frontend/app_list_view/mod.rs:464
+#: src/gui_frontend/app_list_view/mod.rs:1752
 msgid "Name or AppId (Ctrl+K)"
 msgstr "Название или AppId (Ctrl+K)"
 
-#: src/gui_frontend/app_list_view/mod.rs:439
+#: src/gui_frontend/app_list_view/mod.rs:480
 msgid "Show or hide the sidebar"
 msgstr "Показать или скрыть боковую панель"
 
-#: src/gui_frontend/app_list_view/mod.rs:1600
+#: src/gui_frontend/app_list_view/mod.rs:1747
 msgid "Achievement or stat..."
 msgstr "Достижение или статистика..."
 
-#: src/gui_frontend/app_list_view/mod.rs:1719
-#: src/gui_frontend/app_list_view/settings_bindings.rs:265
+#: src/gui_frontend/app_list_view/mod.rs:1866
+#: src/gui_frontend/app_list_view/settings_bindings.rs:333
 msgid "Could not change the in-game setting"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/mod.rs:1721
-#: src/gui_frontend/app_list_view/settings_bindings.rs:266
+#: src/gui_frontend/app_list_view/mod.rs:1868
+#: src/gui_frontend/app_list_view/settings_bindings.rs:334
 #, fuzzy
 msgid "The change could not be applied. Restart SamRewritten and try again."
 msgstr "Новый язык применится при следующем запуске SamRewritten."
 
-#: src/gui_frontend/app_list_view/sidebar.rs:47
+#: src/gui_frontend/app_list_view/sidebar.rs:58
 msgid "Hide with no achievements"
 msgstr "Скрыть без достижений"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:52
+#: src/gui_frontend/app_list_view/sidebar.rs:64
 msgid "Hide at 100%"
 msgstr "Скрыть со 100%"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:57
+#: src/gui_frontend/app_list_view/sidebar.rs:70
 msgid "Hide at 0%"
 msgstr "Скрыть с 0%"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:62
+#: src/gui_frontend/app_list_view/sidebar.rs:76
 msgid "Hide never launched"
 msgstr "Скрыть ни разу не запускавшиеся"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:67
+#: src/gui_frontend/app_list_view/sidebar.rs:82
 msgid "Only currently idling"
 msgstr "Только сейчас в простое"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:72
+#: src/gui_frontend/app_list_view/sidebar.rs:88
+msgid "Hide hidden in Steam"
+msgstr ""
+
+#: src/gui_frontend/app_list_view/sidebar.rs:94
 msgid "Show junk"
 msgstr "Показывать мусор"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:86
+#: src/gui_frontend/app_list_view/sidebar.rs:108
 msgid "App ID"
 msgstr "App ID"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:91
+#: src/gui_frontend/app_list_view/sidebar.rs:113
 msgid "Name"
 msgstr "Название"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:96
+#: src/gui_frontend/app_list_view/sidebar.rs:118
 msgid "Last played"
 msgstr "Последняя игра"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:101
+#: src/gui_frontend/app_list_view/sidebar.rs:123
 msgid "Playtime"
 msgstr "Время в игре"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:106
+#: src/gui_frontend/app_list_view/sidebar.rs:128
 msgid "Completion"
 msgstr "Завершённость"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:111
+#: src/gui_frontend/app_list_view/sidebar.rs:133
 msgid "Achievements left"
 msgstr "Осталось достижений"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:153
+#: src/gui_frontend/app_list_view/sidebar.rs:183
+msgid "Filters on a search term, which SamRewritten cannot reproduce exactly."
+msgstr ""
+
+#: src/gui_frontend/app_list_view/sidebar.rs:186
+msgid "Uses a Steam filter SamRewritten cannot reproduce exactly."
+msgstr ""
+
+#: src/gui_frontend/app_list_view/sidebar.rs:189
+msgid ""
+"Needs information from Steam that could not be read. Refresh to try again."
+msgstr ""
+
+#: src/gui_frontend/app_list_view/sidebar.rs:192
+msgid ""
+"Needs your friends' games, which Steam can only tell us when it is online."
+msgstr ""
+
+#: src/gui_frontend/app_list_view/sidebar.rs:201
+msgid "Favorites"
+msgstr ""
+
+#: src/gui_frontend/app_list_view/sidebar.rs:228
 msgid "View profile"
 msgstr "Открыть профиль"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:208
+#: src/gui_frontend/app_list_view/sidebar.rs:283
 #: src/gui_frontend/profile_view/mod.rs:484
 msgid "Steam user"
 msgstr "Пользователь Steam"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:229
+#: src/gui_frontend/app_list_view/sidebar.rs:305
+msgid "Steam is offline. What needs its servers is turned off."
+msgstr ""
+
+#: src/gui_frontend/app_list_view/sidebar.rs:316
 msgid "Fetching completion…"
 msgstr "Загрузка прогресса…"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:235
+#: src/gui_frontend/app_list_view/sidebar.rs:322
 msgid "Click to cancel"
 msgstr "Нажмите, чтобы отменить"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:266
+#: src/gui_frontend/app_list_view/sidebar.rs:353
 msgid "Filters"
 msgstr "Фильтры"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:274
+#: src/gui_frontend/app_list_view/sidebar.rs:364
+msgid "Steam collection"
+msgstr ""
+
+#: src/gui_frontend/app_list_view/sidebar.rs:365
+#: src/gui_frontend/app_list_view/sidebar.rs:588
+msgid "All games"
+msgstr ""
+
+#: src/gui_frontend/app_list_view/sidebar.rs:448
 msgid "Sort by"
 msgstr "Сортировать по"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:313
+#: src/gui_frontend/app_list_view/sidebar.rs:513
 msgid "Reset filters"
 msgstr "Сбросить фильтры"
 
@@ -989,11 +1028,11 @@ msgstr "Неожиданная ошибка при откате:"
 msgid "Undo incomplete"
 msgstr "Откат неполный"
 
-#: src/gui_frontend/app_list_view/settings_bindings.rs:138
+#: src/gui_frontend/app_list_view/settings_bindings.rs:159
 msgid "The new language will be applied the next time you start SamRewritten."
 msgstr "Новый язык применится при следующем запуске SamRewritten."
 
-#: src/gui_frontend/app_list_view/settings_bindings.rs:148
+#: src/gui_frontend/app_list_view/settings_bindings.rs:169
 msgid "Language changed"
 msgstr "Язык изменён"
 
@@ -1189,15 +1228,15 @@ msgstr ""
 msgid "Import complete"
 msgstr "Импорт завершён"
 
-#: src/gui_frontend/app_list_view/refresh_actions.rs:118
+#: src/gui_frontend/app_list_view/refresh_actions.rs:122
 msgid "No apps found on your account. Search for App Id to get started."
 msgstr "В аккаунте не найдено приложений. Чтобы начать, найдите App Id."
 
-#: src/gui_frontend/app_list_view/refresh_actions.rs:135
+#: src/gui_frontend/app_list_view/refresh_actions.rs:139
 msgid "No results. Check for spelling mistakes or try typing an App Id."
 msgstr "Ничего не найдено. Проверьте написание или введите App Id."
 
-#: src/gui_frontend/app_list_view/refresh_actions.rs:145
+#: src/gui_frontend/app_list_view/refresh_actions.rs:149
 msgid ""
 "Failed to load library. Check your internet connection. Search for App Id to "
 "get started."
@@ -1205,16 +1244,16 @@ msgstr ""
 "Не удалось загрузить библиотеку. Проверьте интернет. Чтобы начать, найдите "
 "App Id."
 
-#: src/gui_frontend/app_list_view/refresh_actions.rs:431
+#: src/gui_frontend/app_list_view/refresh_actions.rs:435
 msgid "Reset Everything"
 msgstr "Сбросить всё"
 
-#: src/gui_frontend/app_list_view/refresh_actions.rs:432
+#: src/gui_frontend/app_list_view/refresh_actions.rs:436
 msgid "This will reset all achievements and stats for this app. Are you sure?"
 msgstr ""
 "Будут сброшены все достижения и статистика этого приложения. Продолжить?"
 
-#: src/gui_frontend/app_list_view/refresh_actions.rs:433
+#: src/gui_frontend/app_list_view/refresh_actions.rs:437
 msgid "Sure, reset"
 msgstr "Да, сбросить"
 
