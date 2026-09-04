@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SamRewritten\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 21:40+0200\n"
+"POT-Creation-Date: 2026-09-03 21:30+0200\n"
 "PO-Revision-Date: 2026-08-13 07:51+0000\n"
 "Last-Translator: Dan <jonweblin2205@protonmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/samrewritten/"
@@ -20,107 +20,147 @@ msgstr ""
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Weblate 2026.9.dev0\n"
 
-#: src/gui_frontend/ui_components.rs:159 src/gui_frontend/app_view.rs:62
+#: src/gui_frontend/ui_components.rs:160 src/gui_frontend/app_view.rs:62
 #: src/gui_frontend/app_list_view/mod.rs:421
 msgid "Loading..."
 msgstr "Завантаження..."
 
-#: src/gui_frontend/ui_components.rs:190
+#: src/gui_frontend/ui_components.rs:191
 msgid "Select all visible apps"
 msgstr "Вибрати всі видимі застосунки"
 
-#: src/gui_frontend/ui_components.rs:194
+#: src/gui_frontend/ui_components.rs:195
 msgid "Deselect all apps"
 msgstr "Зняти вибір з усіх застосунків"
 
-#: src/gui_frontend/ui_components.rs:198
+#: src/gui_frontend/ui_components.rs:199
 msgid "Unlock all in selection"
 msgstr "Розблокувати все вибране"
 
-#: src/gui_frontend/ui_components.rs:202
+#: src/gui_frontend/ui_components.rs:203
 msgid "Reset all in selection"
 msgstr "Скинути все вибране"
 
-#: src/gui_frontend/ui_components.rs:206
+#: src/gui_frontend/ui_components.rs:207
 #: src/gui_frontend/app_list_view/progress_actions.rs:116
 msgid "Export selected apps progress"
 msgstr "Експорт поступу вибраних застосунків"
 
-#: src/gui_frontend/ui_components.rs:210
+#: src/gui_frontend/ui_components.rs:211
 msgid "Import progress..."
 msgstr "Імпорт поступу..."
 
-#: src/gui_frontend/ui_components.rs:216
+#: src/gui_frontend/ui_components.rs:217
 msgid "Appear in-game while managing"
 msgstr ""
 
-#: src/gui_frontend/ui_components.rs:222
+#: src/gui_frontend/ui_components.rs:223
 msgid "Refresh app list"
 msgstr "Оновити перелік застосунків"
 
-#: src/gui_frontend/ui_components.rs:226
+#: src/gui_frontend/ui_components.rs:227
 msgid "Refresh achievement counts"
 msgstr ""
 
-#: src/gui_frontend/ui_components.rs:229 src/gui_frontend/ui_components.rs:413
+#: src/gui_frontend/ui_components.rs:230 src/gui_frontend/ui_components.rs:471
 msgid "About"
 msgstr "Про застосунок"
 
-#: src/gui_frontend/ui_components.rs:233
+#: src/gui_frontend/ui_components.rs:234
 msgid "Change Steam folder…"
 msgstr "Змінити теку Steam…"
 
-#: src/gui_frontend/ui_components.rs:240
+#: src/gui_frontend/ui_components.rs:241
 msgid "Bulk process"
 msgstr "Масова обробка"
 
-#: src/gui_frontend/ui_components.rs:246
+#: src/gui_frontend/ui_components.rs:247
 msgid "System"
 msgstr "Системна"
 
-#: src/gui_frontend/ui_components.rs:247
+#: src/gui_frontend/ui_components.rs:248
 msgid "Light"
 msgstr "Світла"
 
-#: src/gui_frontend/ui_components.rs:248
+#: src/gui_frontend/ui_components.rs:249
 msgid "Dark"
 msgstr "Темна"
 
-#: src/gui_frontend/ui_components.rs:257
+#: src/gui_frontend/ui_components.rs:258
 msgid "Disable animations"
 msgstr "Вимкнути анімації"
 
-#: src/gui_frontend/ui_components.rs:261
+#: src/gui_frontend/ui_components.rs:262
 msgid "Appearance"
 msgstr "Вигляд"
 
-#: src/gui_frontend/ui_components.rs:267
+#: src/gui_frontend/ui_components.rs:268
 msgid "System default"
 msgstr "Як у системі"
 
-#: src/gui_frontend/ui_components.rs:270
+#: src/gui_frontend/ui_components.rs:271
 msgid "Language"
 msgstr "Мова"
 
-#: src/gui_frontend/ui_components.rs:387
+#: src/gui_frontend/ui_components.rs:388
 msgid "Game default"
 msgstr "Мова гри"
 
-#: src/gui_frontend/ui_components.rs:406
+#: src/gui_frontend/ui_components.rs:411
 msgid "Refresh achievements & stats"
 msgstr "Оновити досягнення та статистику"
 
-#: src/gui_frontend/ui_components.rs:410
+#: src/gui_frontend/ui_components.rs:415
 msgid "Reset everything"
 msgstr "Скинути все"
 
-#: src/gui_frontend/ui_components.rs:418
+#: src/gui_frontend/ui_components.rs:435
 msgid "Achievement language"
 msgstr "Мова досягнень"
 
+#: src/gui_frontend/ui_components.rs:440
+msgid "Achievement order"
+msgstr ""
+
+#: src/gui_frontend/ui_components.rs:443 src/gui_frontend/ui_components.rs:465
+msgid "Steam default"
+msgstr ""
+
+#: src/gui_frontend/ui_components.rs:444 src/gui_frontend/ui_components.rs:466
+msgid "Alphabetically"
+msgstr ""
+
+#: src/gui_frontend/ui_components.rs:445
+msgid "Global percentage"
+msgstr ""
+
+#: src/gui_frontend/ui_components.rs:446
+msgid "Unlock date"
+msgstr ""
+
+#: src/gui_frontend/ui_components.rs:451
+msgid "Achievement state"
+msgstr ""
+
+#: src/gui_frontend/ui_components.rs:454
+msgid "All"
+msgstr ""
+
+#: src/gui_frontend/ui_components.rs:455
+msgid "Locked"
+msgstr ""
+
+#: src/gui_frontend/ui_components.rs:456
+msgid "Unlocked"
+msgstr ""
+
+#: src/gui_frontend/ui_components.rs:462
+msgid "Stat order"
+msgstr ""
+
 #: src/gui_frontend/dialogs.rs:89 src/gui_frontend/dialogs.rs:162
 #: src/gui_frontend/dialogs.rs:185 src/gui_frontend/dialogs.rs:233
-#: src/gui_frontend/unlock_scheduler.rs:185
+#: src/gui_frontend/unlock_scheduler.rs:217
 #: src/gui_frontend/app_list_view/progress_actions.rs:43
 msgid "OK"
 msgstr "Гаразд"
@@ -304,11 +344,11 @@ msgstr "Досягнення"
 msgid "Stats"
 msgstr "Статистика"
 
-#: src/gui_frontend/stat_view.rs:102
+#: src/gui_frontend/stat_view.rs:166
 msgid "Increment only"
 msgstr "Тільки приріст"
 
-#: src/gui_frontend/stat_view.rs:107
+#: src/gui_frontend/stat_view.rs:171
 msgid "This statistic is protected."
 msgstr "Ця статистика захищена."
 
@@ -316,19 +356,19 @@ msgstr "Ця статистика захищена."
 msgid "Stop and go back"
 msgstr "Зупинись і повернутись"
 
-#: src/gui_frontend/achievement_manual_view/mod.rs:57
+#: src/gui_frontend/achievement_manual_view/mod.rs:58
 msgid "No achievements staged"
 msgstr "Немає запланованих досягнень"
 
-#: src/gui_frontend/achievement_manual_view/mod.rs:58
+#: src/gui_frontend/achievement_manual_view/mod.rs:59
 msgid "{count} staged"
 msgstr "{count} заплановано"
 
-#: src/gui_frontend/achievement_manual_view/mod.rs:96
+#: src/gui_frontend/achievement_manual_view/mod.rs:97
 msgid "Already at or above target ({progress})"
 msgstr "Ціль досягнута або перевищена ({progress})"
 
-#: src/gui_frontend/achievement_manual_view/mod.rs:102
+#: src/gui_frontend/achievement_manual_view/mod.rs:103
 msgid "Auto-fill {count} achievement(s) ({progress})"
 msgstr "Автозаповнення: {count} досягнення(-нь) ({progress})"
 
@@ -394,7 +434,7 @@ msgid "Spacing"
 msgstr "Інтервал"
 
 #: src/gui_frontend/achievement_manual_view/copy_controls.rs:38
-#: src/gui_frontend/achievement_manual_view/copy_mode.rs:234
+#: src/gui_frontend/achievement_manual_view/copy_mode.rs:238
 msgid "Choose a friend to copy timing from"
 msgstr "Оберіть друга, щоб скопіювати час"
 
@@ -415,11 +455,11 @@ msgstr "Максимальний проміжок"
 msgid "First delay"
 msgstr "Перша затримка"
 
-#: src/gui_frontend/achievement_manual_view/copy_mode.rs:101
+#: src/gui_frontend/achievement_manual_view/copy_mode.rs:105
 msgid "No friend loaded"
 msgstr "Список друзів порожній"
 
-#: src/gui_frontend/achievement_manual_view/copy_mode.rs:111
+#: src/gui_frontend/achievement_manual_view/copy_mode.rs:115
 msgid "{count} achievements over {time}"
 msgstr "{count} досягнень за {time}"
 
@@ -460,146 +500,146 @@ msgid "Try again"
 msgstr ""
 
 #: src/gui_frontend/app_list_view/mod.rs:464
-#: src/gui_frontend/app_list_view/mod.rs:1752
+#: src/gui_frontend/app_list_view/mod.rs:1769
 msgid "Name or AppId (Ctrl+K)"
 msgstr "Назва або AppId (Ctrl+K)"
 
-#: src/gui_frontend/app_list_view/mod.rs:480
+#: src/gui_frontend/app_list_view/mod.rs:499
 msgid "Show or hide the sidebar"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/mod.rs:1747
+#: src/gui_frontend/app_list_view/mod.rs:1764
 msgid "Achievement or stat..."
 msgstr "Досягнення або статистика..."
 
-#: src/gui_frontend/app_list_view/mod.rs:1866
-#: src/gui_frontend/app_list_view/settings_bindings.rs:333
+#: src/gui_frontend/app_list_view/mod.rs:1883
+#: src/gui_frontend/app_list_view/settings_bindings.rs:328
 msgid "Could not change the in-game setting"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/mod.rs:1868
-#: src/gui_frontend/app_list_view/settings_bindings.rs:334
+#: src/gui_frontend/app_list_view/mod.rs:1885
+#: src/gui_frontend/app_list_view/settings_bindings.rs:329
 #, fuzzy
 msgid "The change could not be applied. Restart SamRewritten and try again."
 msgstr "Нова мова буде застосована під час наступного запуску SamRewritten."
 
-#: src/gui_frontend/app_list_view/sidebar.rs:58
+#: src/gui_frontend/app_list_view/sidebar.rs:57
 msgid "Hide with no achievements"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:64
+#: src/gui_frontend/app_list_view/sidebar.rs:63
 msgid "Hide at 100%"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:70
+#: src/gui_frontend/app_list_view/sidebar.rs:69
 msgid "Hide at 0%"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:76
+#: src/gui_frontend/app_list_view/sidebar.rs:75
 msgid "Hide never launched"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:82
+#: src/gui_frontend/app_list_view/sidebar.rs:81
 msgid "Only currently idling"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:88
+#: src/gui_frontend/app_list_view/sidebar.rs:87
 msgid "Hide hidden in Steam"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:94
+#: src/gui_frontend/app_list_view/sidebar.rs:93
 msgid "Show junk"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:108
+#: src/gui_frontend/app_list_view/sidebar.rs:107
 msgid "App ID"
 msgstr "ID застосунку"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:113
+#: src/gui_frontend/app_list_view/sidebar.rs:112
 msgid "Name"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:118
+#: src/gui_frontend/app_list_view/sidebar.rs:117
 #, fuzzy
 msgid "Last played"
 msgstr "Востаннє зіграно:"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:123
+#: src/gui_frontend/app_list_view/sidebar.rs:122
 #, fuzzy
 msgid "Playtime"
 msgstr "Востаннє зіграно:"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:128
+#: src/gui_frontend/app_list_view/sidebar.rs:127
 msgid "Completion"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:133
+#: src/gui_frontend/app_list_view/sidebar.rs:132
 #, fuzzy
 msgid "Achievements left"
 msgstr "Досягнення"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:183
+#: src/gui_frontend/app_list_view/sidebar.rs:180
 msgid "Filters on a search term, which SamRewritten cannot reproduce exactly."
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:186
+#: src/gui_frontend/app_list_view/sidebar.rs:183
 msgid "Uses a Steam filter SamRewritten cannot reproduce exactly."
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:189
+#: src/gui_frontend/app_list_view/sidebar.rs:186
 msgid ""
 "Needs information from Steam that could not be read. Refresh to try again."
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:192
+#: src/gui_frontend/app_list_view/sidebar.rs:189
 msgid ""
 "Needs your friends' games, which Steam can only tell us when it is online."
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:201
+#: src/gui_frontend/app_list_view/sidebar.rs:198
 msgid "Favorites"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:228
+#: src/gui_frontend/app_list_view/sidebar.rs:225
 msgid "View profile"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:283
+#: src/gui_frontend/app_list_view/sidebar.rs:280
 #: src/gui_frontend/profile_view/mod.rs:484
 msgid "Steam user"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:305
+#: src/gui_frontend/app_list_view/sidebar.rs:300
 msgid "Steam is offline. What needs its servers is turned off."
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:316
+#: src/gui_frontend/app_list_view/sidebar.rs:311
 msgid "Fetching completion…"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:322
+#: src/gui_frontend/app_list_view/sidebar.rs:317
 msgid "Click to cancel"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:353
+#: src/gui_frontend/app_list_view/sidebar.rs:348
 #, fuzzy
 msgid "Filters"
 msgstr "Відфільтрувати зайве"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:364
+#: src/gui_frontend/app_list_view/sidebar.rs:359
 msgid "Steam collection"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:365
-#: src/gui_frontend/app_list_view/sidebar.rs:588
+#: src/gui_frontend/app_list_view/sidebar.rs:360
+#: src/gui_frontend/app_list_view/sidebar.rs:580
 msgid "All games"
 msgstr ""
 
-#: src/gui_frontend/app_list_view/sidebar.rs:448
+#: src/gui_frontend/app_list_view/sidebar.rs:442
 msgid "Sort by"
 msgstr "Сортувати за"
 
-#: src/gui_frontend/app_list_view/sidebar.rs:513
+#: src/gui_frontend/app_list_view/sidebar.rs:505
 msgid "Reset filters"
 msgstr ""
 
