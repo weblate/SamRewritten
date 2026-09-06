@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: SamRewritten\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-03 21:30+0200\n"
-"PO-Revision-Date: 2026-09-06 15:21+0000\n"
+"PO-Revision-Date: 2026-09-06 19:03+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: el\n"
@@ -1243,98 +1243,117 @@ msgstr "Όλες οι υπόλοιπες εφαρμογές παραλείφθη
 #: src/gui_frontend/app_list_view/progress_actions.rs:474
 #: src/gui_frontend/app_list_view/progress_actions.rs:507
 msgid "Importing {done} / {total} app(s)…"
-msgstr ""
+msgstr "Eισαγωγή {done} / {total} εφαρμογή/ες…"
 
 #: src/gui_frontend/app_list_view/progress_actions.rs:552
 msgid "achievements and stats written from a file"
-msgstr ""
+msgstr "επιτεύγματα και στατιστικές εγγεγραμμένες από αρχείο"
 
 #: src/gui_frontend/app_list_view/progress_actions.rs:607
 msgid "Applied {achievements} achievement(s) and {stats} stat(s)."
-msgstr ""
+msgstr "Εφαρμόστηκαν {achievements} επίτευγμα/α και {stats} στατιστική/ες."
 
 #: src/gui_frontend/app_list_view/progress_actions.rs:612
 msgid ""
 "\n"
 "Skipped {count} protected field(s)."
 msgstr ""
+"\n"
+"Παραλείφθηκαν {count} προστατευμένο/α πεδίο/α."
 
 #: src/gui_frontend/app_list_view/progress_actions.rs:618
 msgid ""
 "\n"
 "Skipped {count} unwriteable stat(s) (out of range or increment-only)."
 msgstr ""
+"\n"
+"Παραλείφθηκαν {count} μη γραφίσιμη/ες στατιστική/ες (εκτός εμβέλειας ή μόνο "
+"αύξηση)."
 
 #: src/gui_frontend/app_list_view/progress_actions.rs:626
 msgid ""
 "Would succeed if you reset stats first:\n"
 "{list}"
 msgstr ""
+"Θα ήταν επιτυχές αν πρώτα επαναφοράς τις στατιστικές:\n"
+"{list}"
 
 #: src/gui_frontend/app_list_view/progress_actions.rs:632
 msgid ""
 "Skipped (not in your library):\n"
 "{list}"
 msgstr ""
+"Παραλείφθηκαν (δεν είναι στη βιβλιοθήκη σου):\n"
+"{list}"
 
 #: src/gui_frontend/app_list_view/progress_actions.rs:637
 msgid ""
 "Errors:\n"
 "{list}"
 msgstr ""
+"Σφάλματα:\n"
+"{list}"
 
 #: src/gui_frontend/app_list_view/progress_actions.rs:642
 #: src/gui_frontend/app_list_view/progress_actions.rs:644
 msgid "Import complete"
-msgstr ""
+msgstr "Εισαγωγή ολοκληρώθηκε"
 
 #: src/gui_frontend/app_list_view/refresh_actions.rs:122
 msgid "No apps found on your account. Search for App Id to get started."
 msgstr ""
+"Δεν βρέθηκαν εφαρμογές στον λογαριασμό σου. Αναζήτηση App Id για να "
+"ξεκινήσεις."
 
 #: src/gui_frontend/app_list_view/refresh_actions.rs:139
 msgid "No results. Check for spelling mistakes or try typing an App Id."
 msgstr ""
+"Κανένα αποτέλεσμα. Ελέγξε για λάθη ορθογραφίας ή δοκίμασε να πληκτρολογήσεις "
+"ένα App Id."
 
 #: src/gui_frontend/app_list_view/refresh_actions.rs:149
 msgid ""
 "Failed to load library. Check your internet connection. Search for App Id to "
 "get started."
 msgstr ""
+"Απέτυχε η φόρτωση της βιβλιοθήκης. Ελέγξε τη σύνδεση στο διαδίκτυο. "
+"Αναζήτηση App Id για να ξεκινήσεις."
 
 #: src/gui_frontend/app_list_view/refresh_actions.rs:435
 msgid "Reset Everything"
-msgstr ""
+msgstr "Επαναφορά Όλων"
 
 #: src/gui_frontend/app_list_view/refresh_actions.rs:436
 msgid "This will reset all achievements and stats for this app. Are you sure?"
 msgstr ""
+"Αυτή θα επαναφέρει όλα τα επιτεύγματα και τις στατιστικές για αυτή την "
+"εφαρμογή. Είσαι σίγουρος;"
 
 #: src/gui_frontend/app_list_view/refresh_actions.rs:437
 msgid "Sure, reset"
-msgstr ""
+msgstr "Σίγουρα, επαναφορά"
 
 #: src/gui_frontend/widgets/steam_app_card.rs:112
 msgid "Idle"
-msgstr ""
+msgstr "Αδράνεια"
 
 #: src/gui_frontend/widgets/steam_app_card.rs:136
 msgid "Manage"
-msgstr ""
+msgstr "Διαχείριση"
 
 #: src/gui_frontend/widgets/steam_app_card.rs:155
 msgid "Manage this app in a new window"
-msgstr ""
+msgstr "Διαχείριση αυτής της εφαρμογής σε νέο παράθυρο"
 
 #: src/gui_frontend/widgets/achievement_row.rs:265
 #: src/gui_frontend/widgets/achievement_row.rs:270
 msgid "This achievement is protected."
-msgstr ""
+msgstr "Αυτό το επίτευγμα είναι προστατευμένο."
 
 #: src/gui_frontend/widgets/achievement_row.rs:285
 msgid "Click to stage this achievement; click again to remove."
-msgstr ""
+msgstr "Κλικ για να σταθεί αυτό το επίτευγμα, κλικ ξανά για αφαίρεση."
 
 #: src/gui_frontend/widgets/achievement_row.rs:295
 msgid "Already unlocked."
-msgstr ""
+msgstr "Ήδη αποκαλειδωμένο."
