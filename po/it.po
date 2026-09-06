@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: SamRewritten\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-03 21:30+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2026-09-06 19:03+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: it\n"
@@ -20,52 +20,52 @@ msgstr ""
 #: src/gui_frontend/ui_components.rs:160 src/gui_frontend/app_view.rs:62
 #: src/gui_frontend/app_list_view/mod.rs:421
 msgid "Loading..."
-msgstr ""
+msgstr "Caricamento..."
 
 #: src/gui_frontend/ui_components.rs:191
 msgid "Select all visible apps"
-msgstr ""
+msgstr "Seleziona tutti i giochi visibili"
 
 #: src/gui_frontend/ui_components.rs:195
 msgid "Deselect all apps"
-msgstr ""
+msgstr "Deseleziona tutto"
 
 #: src/gui_frontend/ui_components.rs:199
 msgid "Unlock all in selection"
-msgstr ""
+msgstr "Sblocca tutta la selezione"
 
 #: src/gui_frontend/ui_components.rs:203
 msgid "Reset all in selection"
-msgstr ""
+msgstr "Resetta tutta la selezione"
 
 #: src/gui_frontend/ui_components.rs:207
 #: src/gui_frontend/app_list_view/progress_actions.rs:116
 msgid "Export selected apps progress"
-msgstr ""
+msgstr "Esporta i progressi dei giochi selezionati"
 
 #: src/gui_frontend/ui_components.rs:211
 msgid "Import progress..."
-msgstr ""
+msgstr "Importa progressi..."
 
 #: src/gui_frontend/ui_components.rs:217
 msgid "Appear in-game while managing"
-msgstr ""
+msgstr "Risulta in gioco durante la gestione"
 
 #: src/gui_frontend/ui_components.rs:223
 msgid "Refresh app list"
-msgstr ""
+msgstr "Aggiorna lista giochi"
 
 #: src/gui_frontend/ui_components.rs:227
 msgid "Refresh achievement counts"
-msgstr ""
+msgstr "Aggiorna conteggio achievement"
 
 #: src/gui_frontend/ui_components.rs:230 src/gui_frontend/ui_components.rs:471
 msgid "About"
-msgstr ""
+msgstr "Informazioni su"
 
 #: src/gui_frontend/ui_components.rs:234
 msgid "Change Steam folder…"
-msgstr ""
+msgstr "Cambia cartella di Steam…"
 
 #: src/gui_frontend/ui_components.rs:241
 msgid "Bulk process"
