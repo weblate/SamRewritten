@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: SamRewritten\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-03 21:30+0200\n"
-"PO-Revision-Date: 2026-09-06 19:03+0000\n"
+"PO-Revision-Date: 2026-09-09 19:51+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: none\n"
 "Language: it\n"
@@ -69,109 +69,109 @@ msgstr "Cambia cartella di Steam…"
 
 #: src/gui_frontend/ui_components.rs:241
 msgid "Bulk process"
-msgstr ""
+msgstr "Elaborazione di massa"
 
 #: src/gui_frontend/ui_components.rs:247
 msgid "System"
-msgstr ""
+msgstr "Sistema"
 
 #: src/gui_frontend/ui_components.rs:248
 msgid "Light"
-msgstr ""
+msgstr "Chiaro"
 
 #: src/gui_frontend/ui_components.rs:249
 msgid "Dark"
-msgstr ""
+msgstr "Scuro"
 
 #: src/gui_frontend/ui_components.rs:258
 msgid "Disable animations"
-msgstr ""
+msgstr "Disabilita animazioni"
 
 #: src/gui_frontend/ui_components.rs:262
 msgid "Appearance"
-msgstr ""
+msgstr "Aspetto"
 
 #: src/gui_frontend/ui_components.rs:268
 msgid "System default"
-msgstr ""
+msgstr "Usa la lingua del sistema"
 
 #: src/gui_frontend/ui_components.rs:271
 msgid "Language"
-msgstr ""
+msgstr "Lingua"
 
 #: src/gui_frontend/ui_components.rs:388
 msgid "Game default"
-msgstr ""
+msgstr "Usa la lingua del gioco"
 
 #: src/gui_frontend/ui_components.rs:411
 msgid "Refresh achievements & stats"
-msgstr ""
+msgstr "Aggiorna achievement e statistiche"
 
 #: src/gui_frontend/ui_components.rs:415
 msgid "Reset everything"
-msgstr ""
+msgstr "Resetta tutto"
 
 #: src/gui_frontend/ui_components.rs:435
 msgid "Achievement language"
-msgstr ""
+msgstr "Lingua degli achievement"
 
 #: src/gui_frontend/ui_components.rs:440
 msgid "Achievement order"
-msgstr ""
+msgstr "Ordine degli achievement"
 
 #: src/gui_frontend/ui_components.rs:443 src/gui_frontend/ui_components.rs:465
 msgid "Steam default"
-msgstr ""
+msgstr "Usa ordine di Steam"
 
 #: src/gui_frontend/ui_components.rs:444 src/gui_frontend/ui_components.rs:466
 msgid "Alphabetically"
-msgstr ""
+msgstr "Alfabetico"
 
 #: src/gui_frontend/ui_components.rs:445
 msgid "Global percentage"
-msgstr ""
+msgstr "% di completamento globale"
 
 #: src/gui_frontend/ui_components.rs:446
 msgid "Unlock date"
-msgstr ""
+msgstr "Data di sblocco"
 
 #: src/gui_frontend/ui_components.rs:451
 msgid "Achievement state"
-msgstr ""
+msgstr "Stato achievement"
 
 #: src/gui_frontend/ui_components.rs:454
 msgid "All"
-msgstr ""
+msgstr "Tutti"
 
 #: src/gui_frontend/ui_components.rs:455
 msgid "Locked"
-msgstr ""
+msgstr "Bloccati"
 
 #: src/gui_frontend/ui_components.rs:456
 msgid "Unlocked"
-msgstr ""
+msgstr "Sbloccati"
 
 #: src/gui_frontend/ui_components.rs:462
 msgid "Stat order"
-msgstr ""
+msgstr "Ordinamento statistiche"
 
 #: src/gui_frontend/dialogs.rs:89 src/gui_frontend/dialogs.rs:162
 #: src/gui_frontend/dialogs.rs:185 src/gui_frontend/dialogs.rs:233
 #: src/gui_frontend/unlock_scheduler.rs:217
 #: src/gui_frontend/app_list_view/progress_actions.rs:43
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: src/gui_frontend/dialogs.rs:123 src/gui_frontend/dialogs.rs:150
 #: src/gui_frontend/profile_view/mod.rs:587
 #: src/gui_frontend/app_list_view/progress_actions.rs:424
 #: src/gui_frontend/app_list_view/refresh_actions.rs:437
 msgid "Cancel"
-msgstr ""
+msgstr "Annulla"
 
 #: src/gui_frontend/dialogs.rs:284
 msgid "<b>No Steam installations were found on your system.</b>"
-msgstr ""
+msgstr "<b>Nessuna installazione di Steam trovata.</b>"
 
 #: src/gui_frontend/dialogs.rs:286
 msgid ""
@@ -179,6 +179,9 @@ msgid ""
 "haven't installed Steam yet, please install it through your distribution's "
 "official repository or app store."
 msgstr ""
+"SamRewritten non ha trovato Steam nelle cartelle standard. Se non hai ancora "
+"installato Steam, installalo dal repository ufficiale della tua "
+"distribuzione o dall’app store."
 
 #: src/gui_frontend/dialogs.rs:288
 msgid "<b>Already have Steam installed?</b>"
